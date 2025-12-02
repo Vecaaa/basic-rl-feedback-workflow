@@ -1,0 +1,2038 @@
+🚀 Iterative Secure CodeGen Pipeline (strict, per-file, naive+mock)
+📁 PROJECT_DIR : /home/ugrads/ykw5396/basic-rl-feedback-workflow
+📦 KLEE headers: /scratch/ykw5396/klee/include
+Base           : /scratch/ykw5396/llm_outputs
+Iters          : 5
+==========================================
+🧹 Cleaning /scratch/ykw5396/llm_outputs ...
+🧩 Building scanf mock  → /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc
+🧩 Building libc mock   → /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc
+
+===============================
+🌀 Iteration 1  →  /scratch/ykw5396/llm_outputs/iter_1
+===============================
+Step 1: LLM generate...
+The attention mask is not set and cannot be inferred from input because pad token is same as eos token. As a consequence, you may observe unexpected behavior. Please pass your input's `attention_mask` to obtain reliable results.
+✅ Using device: cuda
+🔄 Loading model: deepseek-ai/deepseek-coder-1.3b-base
+📁 OUTPUT_DIR: /scratch/ykw5396/llm_outputs/iter_1/generated_code
+✅ Model loaded successfully.
+📦 Loading dataset from GitHub (APPS_Plus)...
+✅ Loaded 7413 total prompts.
+✅ Using subset: 20 prompts
+
+🚀 Generating code 1/20
+📝 Prompt preview: def OXzHP():
+    """There are n banks in the city where Vasya lives, they are lo...
+✅ Saved clean → /scratch/ykw5396/llm_outputs/iter_1/generated_code/code_1.c
+
+🚀 Generating code 2/20
+📝 Prompt preview: def MiSRf():
+    """Kitahara Haruki has bought n apples for Touma Kazusa and Ogi...
+✅ Saved clean → /scratch/ykw5396/llm_outputs/iter_1/generated_code/code_2.c
+
+🚀 Generating code 3/20
+📝 Prompt preview: def show_me(name):
+	    """There's a new security company in Paris, and they dec...
+✅ Saved clean → /scratch/ykw5396/llm_outputs/iter_1/generated_code/code_3.c
+
+🚀 Generating code 4/20
+📝 Prompt preview: def S2N(m, n):
+	    """# Task
+Your task is to find the sum for the range `0 ... ...
+✅ Saved clean → /scratch/ykw5396/llm_outputs/iter_1/generated_code/code_4.c
+
+🚀 Generating code 5/20
+📝 Prompt preview: def KGSMY():
+    """Petr is organizing Petr Mitrichev Contest #11. The top N cod...
+✅ Saved clean → /scratch/ykw5396/llm_outputs/iter_1/generated_code/code_5.c
+
+🚀 Generating code 6/20
+📝 Prompt preview: def IoONZ():
+    """You are given a sequence $a_1, a_2, \dots, a_n$ consisting o...
+✅ Saved clean → /scratch/ykw5396/llm_outputs/iter_1/generated_code/code_6.c
+
+🚀 Generating code 7/20
+📝 Prompt preview: def diamond(n):
+	    """Jamie is a programmer, and James' girlfriend. She likes ...
+✅ Saved clean → /scratch/ykw5396/llm_outputs/iter_1/generated_code/code_7.c
+
+🚀 Generating code 8/20
+📝 Prompt preview: def wKMBp():
+    """Magnus decided to play a classic chess game. Though what he ...
+✅ Saved clean → /scratch/ykw5396/llm_outputs/iter_1/generated_code/code_8.c
+
+🚀 Generating code 9/20
+📝 Prompt preview: def fFQsz():
+    """Given a string consisting of only lowercase English alphabet...
+✅ Saved clean → /scratch/ykw5396/llm_outputs/iter_1/generated_code/code_9.c
+
+🚀 Generating code 10/20
+📝 Prompt preview: def AxTlg():
+    """Young Timofey has a birthday today! He got kit of n cubes as...
+✅ Saved clean → /scratch/ykw5396/llm_outputs/iter_1/generated_code/code_10.c
+
+🚀 Generating code 11/20
+📝 Prompt preview: def LiCkN():
+    """You are an environmental activist at heart but the reality i...
+✅ Saved clean → /scratch/ykw5396/llm_outputs/iter_1/generated_code/code_11.c
+
+🚀 Generating code 12/20
+📝 Prompt preview: def qBuHW():
+    """Gottfried learned about binary number representation. He the...
+✅ Saved clean → /scratch/ykw5396/llm_outputs/iter_1/generated_code/code_12.c
+
+🚀 Generating code 13/20
+📝 Prompt preview: def pcnsb():
+    """Sergey is testing a next-generation processor. Instead of by...
+✅ Saved clean → /scratch/ykw5396/llm_outputs/iter_1/generated_code/code_13.c
+
+🚀 Generating code 14/20
+📝 Prompt previe======================================================
+📋 Iteration 1 Summary
+======================================================
+Bitcode files (raw):         17
+Compilation+Link failures:   3
+Detected CodeQL issues:      0
+Detected KLEE errors (.err): 3
+------------------------------------------------------
+CodeQL OK:            yes
+Compile+Link OK:      no
+KLEE OK:              no
+erating code 16/20
+📝 Prompt preview: def EkUde():
+    """A daily train consists of N cars. Let's consider one particu...
+✅ Saved clean → /scratch/ykw5396/llm_outputs/iter_1/generated_code/code_16.c
+
+🚀 Generating code 17/20
+📝 Prompt preview: def late_clock(digits):
+	    """`late_clock` function receive an array with 4 di...
+✅ Saved clean → /scratch/ykw5396/llm_outputs/iter_1/generated_code/code_17.c
+
+🚀 Generating code 18/20
+📝 Prompt preview: class Solution:
+    def minNumberOfFrogs(self, croakOfFrogs: str) -> int:
+      ...
+✅ Saved clean → /scratch/ykw5396/llm_outputs/iter_1/generated_code/code_18.c
+
+🚀 Generating code 19/20
+📝 Prompt preview: class Solution:
+    def nextGreaterElement(self, n: int) -> int:
+            """...
+✅ Saved clean → /scratch/ykw5396/llm_outputs/iter_1/generated_code/code_19.c
+
+🚀 Generating code 20/20
+📝 Prompt preview: def IWekJ():
+    """You are given an array $a$ of length $n$.
+
+You are also give...
+✅ Saved clean → /scratch/ykw5396/llm_outputs/iter_1/generated_code/code_20.c
+
+🎉 All code generation complete!
+📁 Check folder: /scratch/ykw5396/llm_outputs/iter_1/generated_code
+✅ LLM done (total files in this iteration: 20)
+Step 2: Cleaning...
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_1/generated_code/code_10.c → /scratch/ykw5396/llm_outputs/iter_1/cleaned_code/code_10.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_1/generated_code/code_11.c → /scratch/ykw5396/llm_outputs/iter_1/cleaned_code/code_11.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_1/generated_code/code_12.c → /scratch/ykw5396/llm_outputs/iter_1/cleaned_code/code_12.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_1/generated_code/code_13.c → /scratch/ykw5396/llm_outputs/iter_1/cleaned_code/code_13.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_1/generated_code/code_14.c → /scratch/ykw5396/llm_outputs/iter_1/cleaned_code/code_14.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_1/generated_code/code_15.c → /scratch/ykw5396/llm_outputs/iter_1/cleaned_code/code_15.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_1/generated_code/code_16.c → /scratch/ykw5396/llm_outputs/iter_1/cleaned_code/code_16.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_1/generated_code/code_17.c → /scratch/ykw5396/llm_outputs/iter_1/cleaned_code/code_17.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_1/generated_code/code_18.c → /scratch/ykw5396/llm_outputs/iter_1/cleaned_code/code_18.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_1/generated_code/code_19.c → /scratch/ykw5396/llm_outputs/iter_1/cleaned_code/code_19.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_1/generated_code/code_1.c → /scratch/ykw5396/llm_outputs/iter_1/cleaned_code/code_1.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_1/generated_code/code_20.c → /scratch/ykw5396/llm_outputs/iter_1/cleaned_code/code_20.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_1/generated_code/code_2.c → /scratch/ykw5396/llm_outputs/iter_1/cleaned_code/code_2.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_1/generated_code/code_3.c → /scratch/ykw5396/llm_outputs/iter_1/cleaned_code/code_3.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_1/generated_code/code_4.c → /scratch/ykw5396/llm_outputs/iter_1/cleaned_code/code_4.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_1/generated_code/code_5.c → /scratch/ykw5396/llm_outputs/iter_1/cleaned_code/code_5.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_1/generated_code/code_6.c → /scratch/ykw5396/llm_outputs/iter_1/cleaned_code/code_6.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_1/generated_code/code_7.c → /scratch/ykw5396/llm_outputs/iter_1/cleaned_code/code_7.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_1/generated_code/code_8.c → /scratch/ykw5396/llm_outputs/iter_1/cleaned_code/code_8.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_1/generated_code/code_9.c → /scratch/ykw5396/llm_outputs/iter_1/cleaned_code/code_9.c
+✓ Cleaned → /scratch/ykw5396/llm_outputs/iter_1/cleaned_code
+🔍 Step 3: CodeQL...
+🔍 Using CodeQL binary: /scratch/ykw5396/codeql/codeql
+📦 Using query pack: codeql/cpp-queries
+🛠  Build compiler: /scratch/ykw5396/llvm-14/bin/clang
+✅ Found 20 source files to analyze.
+
+⚙️  Analyzing code_1.c ...
+✅ code_1.c: 0 issues found
+
+⚙️  Analyzing code_10.c ...
+❌ Failed to create database for code_10.c
+Initializing database at /scratch/ykw5396/llm_outputs/iter_1/feedback/codeql_dbs/db_code_10.
+Running build command: [/scratch/ykw5396/llvm-14/bin/clang, -std=c11, -Wall, -Wextra, -c, code_10.c, -o, /tmp/code_10.o]
+Running command in /scratch/ykw5396/llm_outputs/iter_1/cleaned_code: [/scratch/ykw5396/llvm-14/bin/clang, -std=c11, -Wall, -Wextra, -c, code_10.c, -o, /tmp/code_10.o]
+A fatal error occurred: Exit status 1 from command: [/scratch/ykw5396/llvm-14/bin/clang, -std=c11, -Wall, -Wextra, -c, code_10.c, -o, /tmp/code_10.o]
+
+⚙️  Analyzing code_11.c ...
+✅ code_11.c: 0 issues found
+
+⚙️  Analyzing code_12.c ...
+✅ code_12.c: 0 issues found
+
+⚙️  Analyzing code_13.c ...
+✅ code_13.c: 0 issues found
+
+⚙️  Analyzing code_14.c ...
+✅ code_14.c: 0 issues found
+
+⚙️  Analyzing code_15.c ...
+✅ code_15.c: 0 issues found
+
+⚙️  Analyzing code_16.c ...
+✅ code_16.c: 0 issues found
+
+⚙️  Analyzing code_17.c ...
+✅ code_17.c: 0 issues found
+
+⚙️  Analyzing code_18.c ...
+✅ code_18.c: 0 issues found
+
+⚙️  Analyzing code_19.c ...
+✅ code_19.c: 0 issues found
+
+⚙️  Analyzing code_2.c ...
+✅ code_2.c: 0 issues found
+
+⚙️  Analyzing code_20.c ...
+❌ Failed to create database for code_20.c
+Initializing database at /scratch/ykw5396/llm_outputs/iter_1/feedback/codeql_dbs/db_code_20.
+Running build command: [/scratch/ykw5396/llvm-14/bin/clang, -std=c11, -Wall, -Wextra, -c, code_20.c, -o, /tmp/code_20.o]
+Running command in /scratch/ykw5396/llm_outputs/iter_1/cleaned_code: [/scratch/ykw5396/llvm-14/bin/clang, -std=c11, -Wall, -Wextra, -c, code_20.c, -o, /tmp/code_20.o]
+A fatal error occurred: Exit status 1 from command: [/scratch/ykw5396/llvm-14/bin/clang, -std=c11, -Wall, -Wextra, -c, code_20.c, -o, /tmp/code_20.o]
+
+⚙️  Analyzing code_3.c ...
+✅ code_3.c: 0 issues found
+
+⚙️  Analyzing code_4.c ...
+✅ code_4.c: 0 issues found
+
+⚙️  Analyzing code_5.c ...
+✅ code_5.c: 0 issues found
+
+⚙️  Analyzing code_6.c ...
+✅ code_6.c: 0 issues found
+
+⚙️  Analyzing code_7.c ...
+✅ code_7.c: 0 issues found
+
+⚙️  Analyzing code_8.c ...
+❌ Failed to create database for code_8.c
+Initializing database at /scratch/ykw5396/llm_outputs/iter_1/feedback/codeql_dbs/db_code_8.
+Running build command: [/scratch/ykw5396/llvm-14/bin/clang, -std=c11, -Wall, -Wextra, -c, code_8.c, -o, /tmp/code_8.o]
+Running command in /scratch/ykw5396/llm_outputs/iter_1/cleaned_code: [/scratch/ykw5396/llvm-14/bin/clang, -std=c11, -Wall, -Wextra, -c, code_8.c, -o, /tmp/code_8.o]
+A fatal error occurred: Exit status 1 from command: [/scratch/ykw5396/llvm-14/bin/clang, -std=c11, -Wall, -Wextra, -c, code_8.c, -o, /tmp/code_8.o]
+
+⚙️  Analyzing code_9.c ...
+✅ code_9.c: 0 issues found
+
+✅ Detailed report saved to /scratch/ykw5396/llm_outputs/iter_1/feedback/codeql_feedback.txt
+✅ CodeQL OK
+🔧 Step 4: Compile to LLVM bitcode & link mocks...
+   ❌ code_10
+   ✅ code_11
+[LLVM-LINK] code_11: /scratch/ykw5396/llm_outputs/iter_1/bitcode/code_11.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_1/bitcode_linked/code_11.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_1/bitcode_linked/code_11.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_12
+[LLVM-LINK] code_12: /scratch/ykw5396/llm_outputs/iter_1/bitcode/code_12.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_1/bitcode_linked/code_12.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_1/bitcode_linked/code_12.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_13
+[LLVM-LINK] code_13: /scratch/ykw5396/llm_outputs/iter_1/bitcode/code_13.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_1/bitcode_linked/code_13.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_1/bitcode_linked/code_13.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_14
+[LLVM-LINK] code_14: /scratch/ykw5396/llm_outputs/iter_1/bitcode/code_14.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_1/bitcode_linked/code_14.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_1/bitcode_linked/code_14.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_15
+[LLVM-LINK] code_15: /scratch/ykw5396/llm_outputs/iter_1/bitcode/code_15.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_1/bitcode_linked/code_15.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_1/bitcode_linked/code_15.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_16
+[LLVM-LINK] code_16: /scratch/ykw5396/llm_outputs/iter_1/bitcode/code_16.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_1/bitcode_linked/code_16.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_1/bitcode_linked/code_16.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_17
+[LLVM-LINK] code_17: /scratch/ykw5396/llm_outputs/iter_1/bitcode/code_17.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_1/bitcode_linked/code_17.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_1/bitcode_linked/code_17.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_18
+[LLVM-LINK] code_18: /scratch/ykw5396/llm_outputs/iter_1/bitcode/code_18.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_1/bitcode_linked/code_18.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_1/bitcode_linked/code_18.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_19
+[LLVM-LINK] code_19: /scratch/ykw5396/llm_outputs/iter_1/bitcode/code_19.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_1/bitcode_linked/code_19.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_1/bitcode_linked/code_19.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_1
+[LLVM-LINK] code_1: /scratch/ykw5396/llm_outputs/iter_1/bitcode/code_1.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_1/bitcode_linked/code_1.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_1/bitcode_linked/code_1.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ❌ code_20
+   ✅ code_2
+[LLVM-LINK] code_2: /scratch/ykw5396/llm_outputs/iter_1/bitcode/code_2.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_1/bitcode_linked/code_2.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_1/bitcode_linked/code_2.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_3
+[LLVM-LINK] code_3: /scratch/ykw5396/llm_outputs/iter_1/bitcode/code_3.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_1/bitcode_linked/code_3.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_1/bitcode_linked/code_3.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_4
+[LLVM-LINK] code_4: /scratch/ykw5396/llm_outputs/iter_1/bitcode/code_4.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_1/bitcode_linked/code_4.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_1/bitcode_linked/code_4.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_5
+[LLVM-LINK] code_5: /scratch/ykw5396/llm_outputs/iter_1/bitcode/code_5.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_1/bitcode_linked/code_5.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_1/bitcode_linked/code_5.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_6
+[LLVM-LINK] code_6: /scratch/ykw5396/llm_outputs/iter_1/bitcode/code_6.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_1/bitcode_linked/code_6.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_1/bitcode_linked/code_6.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_7
+[LLVM-LINK] code_7: /scratch/ykw5396/llm_outputs/iter_1/bitcode/code_7.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_1/bitcode_linked/code_7.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_1/bitcode_linked/code_7.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ❌ code_8
+   ✅ code_9
+[LLVM-LINK] code_9: /scratch/ykw5396/llm_outputs/iter_1/bitcode/code_9.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_1/bitcode_linked/code_9.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_1/bitcode_linked/code_9.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+❌ Compile/Link issues present or tool missing
+🧠 Step 5: KLEE (naive, scanf mocked)...
+   ▶ code_11
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_1/klee_output/code_11
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_1/klee_output/klee_code_11.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=11  Errors=2
+   ▶ code_12
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_1/klee_output/code_12
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_1/klee_output/klee_code_12.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_13
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_1/klee_output/code_13
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_1/klee_output/klee_code_13.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=4  (no actual errors)
+   ▶ code_14
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_1/klee_output/code_14
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_1/klee_output/klee_code_14.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_15
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_1/klee_output/code_15
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_1/klee_output/klee_code_15.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_16
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_1/klee_output/code_16
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_1/klee_output/klee_code_16.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_17
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_1/klee_output/code_17
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_1/klee_output/klee_code_17.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_18
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_1/klee_output/code_18
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_1/klee_output/klee_code_18.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_19
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_1/klee_output/code_19
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_1/klee_output/klee_code_19.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=5  (no actual errors)
+   ▶ code_1
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_1/klee_output/code_1
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_1/klee_output/klee_code_1.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_2
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_1/klee_output/code_2
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_1/klee_output/klee_code_2.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_3
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_1/klee_output/code_3
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_1/klee_output/klee_code_3.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_4
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_1/klee_output/code_4
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_1/klee_output/klee_code_4.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=2  (no actual errors)
+   ▶ code_5
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_1/klee_output/code_5
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_1/klee_output/klee_code_5.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=6  (no actual errors)
+   ▶ code_6
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_1/klee_output/code_6
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_1/klee_output/klee_code_6.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_7
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_1/klee_output/code_7
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_1/klee_output/klee_code_7.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=2  Errors=1
+   ▶ code_9
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_1/klee_output/code_9
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_1/klee_output/klee_code_9.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+❌ KLEE issues present
+======================================================
+📋 Iteration 1 Summary
+======================================================
+Bitcode files (raw):         17
+Compilation+Link failures:   3
+Detected CodeQL issues:      0
+Detected KLEE errors (.err): 3
+------------------------------------------------------
+CodeQL OK:            yes
+Compile+Link OK:      no
+KLEE OK:              no
+✅ Iteration 1 summary → /scratch/ykw5396/llm_outputs/iter_1/reports/summary_iter_1.txt
+
+===============================
+🌀 Iteration 2  →  /scratch/ykw5396/llm_outputs/iter_2
+===============================
+Step 1: LLM generate...
+♻️ Regenerating 7 problematic file(s): 10 11 1 20 2 7 8
+The attention mask is not set and cannot be inferred from input because pad token is same as eos token. As a consequence, you may observe unexpected behavior. Please pass your input's `attention_mask` to obtain reliable results.
+🧩 Selective mode: regenerating only indices ['10', '11', '1', '20', '2', '7', '8']
+✅ Using device: cuda
+🔄 Loading model: deepseek-ai/deepseek-coder-1.3b-base
+📁 OUTPUT_DIR: /scratch/ykw5396/llm_outputs/iter_2/generated_code
+🗂 PROMPTS_DIR: /scratch/ykw5396/llm_outputs/iter_1/generated_code/prompts
+🗂 FEEDBACK_DIR: /scratch/ykw5396/llm_outputs/iter_1/feedback
+✅ Model loaded successfully.
+📦 Using 20 prompts (directory mode)
+
+🚀 Generating code_1.c
+📝 Prompt preview: def OXzHP():
+    """There are n banks in the city where Vasya lives, they are lo...
+✅ Saved clean → /scratch/ykw5396/llm_outputs/iter_2/generated_code/code_1.c
+
+🚀 Generating code_2.c
+📝 Prompt preview: def MiSRf():
+    """Kitahara Haruki has bought n apples for Touma Kazusa and Ogi...
+✅ Saved clean → /scratch/ykw5396/llm_outputs/iter_2/generated_code/code_2.c
+⏩ Skipping code_3.c (not in --only list)
+⏩ Skipping code_4.c (not in --only list)
+⏩ Skipping code_5.c (not in --only list)
+⏩ Skipping code_6.c (not in --only list)
+
+🚀 Generating code_7.c
+📝 Prompt preview: def diamond(n):
+	    """Jamie is a programmer, and James' girlfriend. She likes ...
+✅ Saved clean → /scratch/ykw5396/llm_outputs/iter_2/generated_code/code_7.c
+
+🚀 Generating code_8.c
+📝 Prompt preview: def wKMBp():
+    """Magnus decided to play a classic chess game. Though what he ...
+✅ Saved clean → /scratch/ykw5396/llm_outputs/iter_2/generated_code/code_8.c
+⏩ Skipping code_9.c (not in --only list)
+
+🚀 Generating code_10.c
+📝 Prompt preview: def AxTlg():
+    """Young Timofey has a birthday today! He got kit of n cubes as...
+✅ Saved clean → /scratch/ykw5396/llm_outputs/iter_2/generated_code/code_10.c
+
+🚀 Generating code_11.c
+📝 Prompt preview: def LiCkN():
+    """You are an environmental activist at heart but the reality i...
+✅ Saved clean → /scratch/ykw5396/llm_outputs/iter_2/generated_code/code_11.c
+⏩ Skipping code_12.c (not in --only list)
+⏩ Skipping code_13.c (not in --only list)
+⏩ Skipping code_14.c (not in --only list)
+⏩ Skipping code_15.c (not in --only list)
+⏩ Skipping code_16.c (not in --only list)
+⏩ Skipping code_17.c (not in --only list)
+⏩ Skipping code_18.c (not in --only list)
+⏩ Skipping code_19.c (not in --only list)
+
+🚀 Generating code_20.c
+📝 Prompt preview: def IWekJ():
+    """You are given an array $a$ of length $n$.
+
+You are also give...
+✅ Saved clean → /scratch/ykw5396/llm_outputs/iter_2/generated_code/code_20.c
+
+🎉 Code generation complete!
+📁 Check folder: /scratch/ykw5396/llm_outputs/iter_2/generated_code
+✅ LLM done (total files in this iteration: 20)
+Step 2: Cleaning...
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_2/generated_code/code_10.c → /scratch/ykw5396/llm_outputs/iter_2/cleaned_code/code_10.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_2/generated_code/code_11.c → /scratch/ykw5396/llm_outputs/iter_2/cleaned_code/code_11.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_2/generated_code/code_12.c → /scratch/ykw5396/llm_outputs/iter_2/cleaned_code/code_12.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_2/generated_code/code_13.c → /scratch/ykw5396/llm_outputs/iter_2/cleaned_code/code_13.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_2/generated_code/code_14.c → /scratch/ykw5396/llm_outputs/iter_2/cleaned_code/code_14.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_2/generated_code/code_15.c → /scratch/ykw5396/llm_outputs/iter_2/cleaned_code/code_15.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_2/generated_code/code_16.c → /scratch/ykw5396/llm_outputs/iter_2/cleaned_code/code_16.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_2/generated_code/code_17.c → /scratch/ykw5396/llm_outputs/iter_2/cleaned_code/code_17.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_2/generated_code/code_18.c → /scratch/ykw5396/llm_outputs/iter_2/cleaned_code/code_18.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_2/generated_code/code_19.c → /scratch/ykw5396/llm_outputs/iter_2/cleaned_code/code_19.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_2/generated_code/code_1.c → /scratch/ykw5396/llm_outputs/iter_2/cleaned_code/code_1.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_2/generated_code/code_20.c → /scratch/ykw5396/llm_outputs/iter_2/cleaned_code/code_20.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_2/generated_code/code_2.c → /scratch/ykw5396/llm_outputs/iter_2/cleaned_code/code_2.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_2/generated_code/code_3.c → /scratch/ykw5396/llm_outputs/iter_2/cleaned_code/code_3.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_2/generated_code/code_4.c → /scratch/ykw5396/llm_outputs/iter_2/cleaned_code/code_4.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_2/generated_code/code_5.c → /scratch/ykw5396/llm_outputs/iter_2/cleaned_code/code_5.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_2/generated_code/code_6.c → /scratch/ykw5396/llm_outputs/iter_2/cleaned_code/code_6.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_2/generated_code/code_7.c → /scratch/ykw5396/llm_outputs/iter_2/cleaned_code/code_7.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_2/generated_code/code_8.c → /scratch/ykw5396/llm_outputs/iter_2/cleaned_code/code_8.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_2/generated_code/code_9.c → /scratch/ykw5396/llm_outputs/iter_2/cleaned_code/code_9.c
+✓ Cleaned → /scratch/ykw5396/llm_outputs/iter_2/cleaned_code
+🔍 Step 3: CodeQL...
+🔍 Using CodeQL binary: /scratch/ykw5396/codeql/codeql
+📦 Using query pack: codeql/cpp-queries
+🛠  Build compiler: /scratch/ykw5396/llvm-14/bin/clang
+✅ Found 20 source files to analyze.
+
+⚙️  Analyzing code_1.c ...
+✅ code_1.c: 0 issues found
+
+⚙️  Analyzing code_10.c ...
+✅ code_10.c: 0 issues found
+
+⚙️  Analyzing code_11.c ...
+❌ Failed to create database for code_11.c
+Initializing database at /scratch/ykw5396/llm_outputs/iter_2/feedback/codeql_dbs/db_code_11.
+Running build command: [/scratch/ykw5396/llvm-14/bin/clang, -std=c11, -Wall, -Wextra, -c, code_11.c, -o, /tmp/code_11.o]
+Running command in /scratch/ykw5396/llm_outputs/iter_2/cleaned_code: [/scratch/ykw5396/llvm-14/bin/clang, -std=c11, -Wall, -Wextra, -c, code_11.c, -o, /tmp/code_11.o]
+A fatal error occurred: Exit status 1 from command: [/scratch/ykw5396/llvm-14/bin/clang, -std=c11, -Wall, -Wextra, -c, code_11.c, -o, /tmp/code_11.o]
+
+⚙️  Analyzing code_12.c ...
+✅ code_12.c: 0 issues found
+
+⚙️  Analyzing code_13.c ...
+✅ code_13.c: 0 issues found
+
+⚙️  Analyzing code_14.c ...
+✅ code_14.c: 0 issues found
+
+⚙️  Analyzing code_15.c ...
+✅ code_15.c: 0 issues found
+
+⚙️  Analyzing code_16.c ...
+✅ code_16.c: 0 issues found
+
+⚙️  Analyzing code_17.c ...
+✅ code_17.c: 0 issues found
+
+⚙️  Analyzing code_18.c ...
+✅ code_18.c: 0 issues found
+
+⚙️  Analyzing code_19.c ...
+✅ code_19.c: 0 issues found
+
+⚙️  Analyzing code_2.c ...
+✅ code_2.c: 0 issues found
+
+⚙️  Analyzing code_20.c ...
+❌ Failed to create database for code_20.c
+Initializing database at /scratch/ykw5396/llm_outputs/iter_2/feedback/codeql_dbs/db_code_20.
+Running build command: [/scratch/ykw5396/llvm-14/bin/clang, -std=c11, -Wall, -Wextra, -c, code_20.c, -o, /tmp/code_20.o]
+Running command in /scratch/ykw5396/llm_outputs/iter_2/cleaned_code: [/scratch/ykw5396/llvm-14/bin/clang, -std=c11, -Wall, -Wextra, -c, code_20.c, -o, /tmp/code_20.o]
+A fatal error occurred: Exit status 1 from command: [/scratch/ykw5396/llvm-14/bin/clang, -std=c11, -Wall, -Wextra, -c, code_20.c, -o, /tmp/code_20.o]
+
+⚙️  Analyzing code_3.c ...
+✅ code_3.c: 0 issues found
+
+⚙️  Analyzing code_4.c ...
+✅ code_4.c: 0 issues found
+
+⚙️  Analyzing code_5.c ...
+✅ code_5.c: 0 issues found
+
+⚙️  Analyzing code_6.c ...
+✅ code_6.c: 0 issues found
+
+⚙️  Analyzing code_7.c ...
+✅ code_7.c: 0 issues found
+
+⚙️  Analyzing code_8.c ...
+❌ Failed to create database for code_8.c
+Initializing database at /scratch/ykw5396/llm_outputs/iter_2/feedback/codeql_dbs/db_code_8.
+Running build command: [/scratch/ykw5396/llvm-14/bin/clang, -std=c11, -Wall, -Wextra, -c, code_8.c, -o, /tmp/code_8.o]
+Running command in /scratch/ykw5396/llm_outputs/iter_2/cleaned_code: [/scratch/ykw5396/llvm-14/bin/clang, -std=c11, -Wall, -Wextra, -c, code_8.c, -o, /tmp/code_8.o]
+A fatal error occurred: Exit status 1 from command: [/scratch/ykw5396/llvm-14/bin/clang, -std=c11, -Wall, -Wextra, -c, code_8.c, -o, /tmp/code_8.o]
+
+⚙️  Analyzing code_9.c ...
+✅ code_9.c: 0 issues found
+
+✅ Detailed report saved to /scratch/ykw5396/llm_outputs/iter_2/feedback/codeql_feedback.txt
+✅ CodeQL OK
+🔧 Step 4: Compile to LLVM bitcode & link mocks...
+   ✅ code_10
+[LLVM-LINK] code_10: /scratch/ykw5396/llm_outputs/iter_2/bitcode/code_10.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_2/bitcode_linked/code_10.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_2/bitcode_linked/code_10.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ❌ code_11
+   ✅ code_12
+[LLVM-LINK] code_12: /scratch/ykw5396/llm_outputs/iter_2/bitcode/code_12.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_2/bitcode_linked/code_12.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_2/bitcode_linked/code_12.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_13
+[LLVM-LINK] code_13: /scratch/ykw5396/llm_outputs/iter_2/bitcode/code_13.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_2/bitcode_linked/code_13.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_2/bitcode_linked/code_13.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_14
+[LLVM-LINK] code_14: /scratch/ykw5396/llm_outputs/iter_2/bitcode/code_14.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_2/bitcode_linked/code_14.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_2/bitcode_linked/code_14.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_15
+[LLVM-LINK] code_15: /scratch/ykw5396/llm_outputs/iter_2/bitcode/code_15.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_2/bitcode_linked/code_15.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_2/bitcode_linked/code_15.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_16
+[LLVM-LINK] code_16: /scratch/ykw5396/llm_outputs/iter_2/bitcode/code_16.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_2/bitcode_linked/code_16.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_2/bitcode_linked/code_16.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_17
+[LLVM-LINK] code_17: /scratch/ykw5396/llm_outputs/iter_2/bitcode/code_17.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_2/bitcode_linked/code_17.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_2/bitcode_linked/code_17.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_18
+[LLVM-LINK] code_18: /scratch/ykw5396/llm_outputs/iter_2/bitcode/code_18.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_2/bitcode_linked/code_18.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_2/bitcode_linked/code_18.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_19
+[LLVM-LINK] code_19: /scratch/ykw5396/llm_outputs/iter_2/bitcode/code_19.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_2/bitcode_linked/code_19.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_2/bitcode_linked/code_19.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_1
+[LLVM-LINK] code_1: /scratch/ykw5396/llm_outputs/iter_2/bitcode/code_1.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_2/bitcode_linked/code_1.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_2/bitcode_linked/code_1.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ❌ code_20
+   ✅ code_2
+[LLVM-LINK] code_2: /scratch/ykw5396/llm_outputs/iter_2/bitcode/code_2.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_2/bitcode_linked/code_2.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_2/bitcode_linked/code_2.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_3
+[LLVM-LINK] code_3: /scratch/ykw5396/llm_outputs/iter_2/bitcode/code_3.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_2/bitcode_linked/code_3.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_2/bitcode_linked/code_3.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_4
+[LLVM-LINK] code_4: /scratch/ykw5396/llm_outputs/iter_2/bitcode/code_4.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_2/bitcode_linked/code_4.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_2/bitcode_linked/code_4.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_5
+[LLVM-LINK] code_5: /scratch/ykw5396/llm_outputs/iter_2/bitcode/code_5.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_2/bitcode_linked/code_5.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_2/bitcode_linked/code_5.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_6
+[LLVM-LINK] code_6: /scratch/ykw5396/llm_outputs/iter_2/bitcode/code_6.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_2/bitcode_linked/code_6.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_2/bitcode_linked/code_6.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_7
+[LLVM-LINK] code_7: /scratch/ykw5396/llm_outputs/iter_2/bitcode/code_7.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_2/bitcode_linked/code_7.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_2/bitcode_linked/code_7.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ❌ code_8
+   ✅ code_9
+[LLVM-LINK] code_9: /scratch/ykw5396/llm_outputs/iter_2/bitcode/code_9.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_2/bitcode_linked/code_9.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_2/bitcode_linked/code_9.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+❌ Compile/Link issues present or tool missing
+🧠 Step 5: KLEE (naive, scanf mocked)...
+   ▶ code_10
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_2/klee_output/code_10
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_2/klee_output/klee_code_10.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_12
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_2/klee_output/code_12
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_2/klee_output/klee_code_12.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_13
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_2/klee_output/code_13
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_2/klee_output/klee_code_13.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=4  (no actual errors)
+   ▶ code_14
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_2/klee_output/code_14
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_2/klee_output/klee_code_14.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_15
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_2/klee_output/code_15
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_2/klee_output/klee_code_15.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_16
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_2/klee_output/code_16
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_2/klee_output/klee_code_16.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_17
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_2/klee_output/code_17
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_2/klee_output/klee_code_17.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_18
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_2/klee_output/code_18
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_2/klee_output/klee_code_18.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_19
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_2/klee_output/code_19
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_2/klee_output/klee_code_19.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=5  (no actual errors)
+   ▶ code_1
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_2/klee_output/code_1
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_2/klee_output/klee_code_1.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_2
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_2/klee_output/code_2
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_2/klee_output/klee_code_2.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_3
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_2/klee_output/code_3
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_2/klee_output/klee_code_3.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_4
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_2/klee_output/code_4
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_2/klee_output/klee_code_4.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=2  (no actual errors)
+   ▶ code_5
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_2/klee_output/code_5
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_2/klee_output/klee_code_5.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=6  (no actual errors)
+   ▶ code_6
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_2/klee_output/code_6
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_2/klee_output/klee_code_6.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_7
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_2/klee_output/code_7
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_2/klee_output/klee_code_7.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_9
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_2/klee_output/code_9
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_2/klee_output/klee_code_9.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+✅ KLEE OK (continuing)
+======================================================
+📋 Iteration 2 Summary
+======================================================
+Bitcode files (raw):         17
+Compilation+Link failures:   3
+Detected CodeQL issues:      0
+Detected KLEE errors (.err): 0
+------------------------------------------------------
+CodeQL OK:            yes
+Compile+Link OK:      no
+KLEE OK:              yes
+✅ Iteration 2 summary → /scratch/ykw5396/llm_outputs/iter_2/reports/summary_iter_2.txt
+
+===============================
+🌀 Iteration 3  →  /scratch/ykw5396/llm_outputs/iter_3
+===============================
+Step 1: LLM generate...
+♻️ Regenerating 5 problematic file(s): 11 1 20 2 8
+The attention mask is not set and cannot be inferred from input because pad token is same as eos token. As a consequence, you may observe unexpected behavior. Please pass your input's `attention_mask` to obtain reliable results.
+🧩 Selective mode: regenerating only indices ['11', '1', '20', '2', '8']
+✅ Using device: cuda
+🔄 Loading model: deepseek-ai/deepseek-coder-1.3b-base
+📁 OUTPUT_DIR: /scratch/ykw5396/llm_outputs/iter_3/generated_code
+🗂 PROMPTS_DIR: /scratch/ykw5396/llm_outputs/iter_1/generated_code/prompts
+🗂 FEEDBACK_DIR: /scratch/ykw5396/llm_outputs/iter_2/feedback
+✅ Model loaded successfully.
+📦 Using 20 prompts (directory mode)
+
+🚀 Generating code_1.c
+📝 Prompt preview: def OXzHP():
+    """There are n banks in the city where Vasya lives, they are lo...
+✅ Saved clean → /scratch/ykw5396/llm_outputs/iter_3/generated_code/code_1.c
+
+🚀 Generating code_2.c
+📝 Prompt preview: def MiSRf():
+    """Kitahara Haruki has bought n apples for Touma Kazusa and Ogi...
+✅ Saved clean → /scratch/ykw5396/llm_outputs/iter_3/generated_code/code_2.c
+⏩ Skipping code_3.c (not in --only list)
+⏩ Skipping code_4.c (not in --only list)
+⏩ Skipping code_5.c (not in --only list)
+⏩ Skipping code_6.c (not in --only list)
+⏩ Skipping code_7.c (not in --only list)
+
+🚀 Generating code_8.c
+📝 Prompt preview: def wKMBp():
+    """Magnus decided to play a classic chess game. Though what he ...
+✅ Saved clean → /scratch/ykw5396/llm_outputs/iter_3/generated_code/code_8.c
+⏩ Skipping code_9.c (not in --only list)
+⏩ Skipping code_10.c (not in --only list)
+
+🚀 Generating code_11.c
+📝 Prompt preview: def LiCkN():
+    """You are an environmental activist at heart but the reality i...
+✅ Saved clean → /scratch/ykw5396/llm_outputs/iter_3/generated_code/code_11.c
+⏩ Skipping code_12.c (not in --only list)
+⏩ Skipping code_13.c (not in --only list)
+⏩ Skipping code_14.c (not in --only list)
+⏩ Skipping code_15.c (not in --only list)
+⏩ Skipping code_16.c (not in --only list)
+⏩ Skipping code_17.c (not in --only list)
+⏩ Skipping code_18.c (not in --only list)
+⏩ Skipping code_19.c (not in --only list)
+
+🚀 Generating code_20.c
+📝 Prompt preview: def IWekJ():
+    """You are given an array $a$ of length $n$.
+
+You are also give...
+✅ Saved clean → /scratch/ykw5396/llm_outputs/iter_3/generated_code/code_20.c
+
+🎉 Code generation complete!
+📁 Check folder: /scratch/ykw5396/llm_outputs/iter_3/generated_code
+✅ LLM done (total files in this iteration: 20)
+Step 2: Cleaning...
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_3/generated_code/code_10.c → /scratch/ykw5396/llm_outputs/iter_3/cleaned_code/code_10.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_3/generated_code/code_11.c → /scratch/ykw5396/llm_outputs/iter_3/cleaned_code/code_11.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_3/generated_code/code_12.c → /scratch/ykw5396/llm_outputs/iter_3/cleaned_code/code_12.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_3/generated_code/code_13.c → /scratch/ykw5396/llm_outputs/iter_3/cleaned_code/code_13.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_3/generated_code/code_14.c → /scratch/ykw5396/llm_outputs/iter_3/cleaned_code/code_14.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_3/generated_code/code_15.c → /scratch/ykw5396/llm_outputs/iter_3/cleaned_code/code_15.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_3/generated_code/code_16.c → /scratch/ykw5396/llm_outputs/iter_3/cleaned_code/code_16.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_3/generated_code/code_17.c → /scratch/ykw5396/llm_outputs/iter_3/cleaned_code/code_17.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_3/generated_code/code_18.c → /scratch/ykw5396/llm_outputs/iter_3/cleaned_code/code_18.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_3/generated_code/code_19.c → /scratch/ykw5396/llm_outputs/iter_3/cleaned_code/code_19.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_3/generated_code/code_1.c → /scratch/ykw5396/llm_outputs/iter_3/cleaned_code/code_1.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_3/generated_code/code_20.c → /scratch/ykw5396/llm_outputs/iter_3/cleaned_code/code_20.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_3/generated_code/code_2.c → /scratch/ykw5396/llm_outputs/iter_3/cleaned_code/code_2.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_3/generated_code/code_3.c → /scratch/ykw5396/llm_outputs/iter_3/cleaned_code/code_3.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_3/generated_code/code_4.c → /scratch/ykw5396/llm_outputs/iter_3/cleaned_code/code_4.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_3/generated_code/code_5.c → /scratch/ykw5396/llm_outputs/iter_3/cleaned_code/code_5.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_3/generated_code/code_6.c → /scratch/ykw5396/llm_outputs/iter_3/cleaned_code/code_6.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_3/generated_code/code_7.c → /scratch/ykw5396/llm_outputs/iter_3/cleaned_code/code_7.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_3/generated_code/code_8.c → /scratch/ykw5396/llm_outputs/iter_3/cleaned_code/code_8.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_3/generated_code/code_9.c → /scratch/ykw5396/llm_outputs/iter_3/cleaned_code/code_9.c
+✓ Cleaned → /scratch/ykw5396/llm_outputs/iter_3/cleaned_code
+🔍 Step 3: CodeQL...
+🔍 Using CodeQL binary: /scratch/ykw5396/codeql/codeql
+📦 Using query pack: codeql/cpp-queries
+🛠  Build compiler: /scratch/ykw5396/llvm-14/bin/clang
+✅ Found 20 source files to analyze.
+
+⚙️  Analyzing code_1.c ...
+✅ code_1.c: 0 issues found
+
+⚙️  Analyzing code_10.c ...
+✅ code_10.c: 0 issues found
+
+⚙️  Analyzing code_11.c ...
+❌ Failed to create database for code_11.c
+Initializing database at /scratch/ykw5396/llm_outputs/iter_3/feedback/codeql_dbs/db_code_11.
+Running build command: [/scratch/ykw5396/llvm-14/bin/clang, -std=c11, -Wall, -Wextra, -c, code_11.c, -o, /tmp/code_11.o]
+Running command in /scratch/ykw5396/llm_outputs/iter_3/cleaned_code: [/scratch/ykw5396/llvm-14/bin/clang, -std=c11, -Wall, -Wextra, -c, code_11.c, -o, /tmp/code_11.o]
+A fatal error occurred: Exit status 1 from command: [/scratch/ykw5396/llvm-14/bin/clang, -std=c11, -Wall, -Wextra, -c, code_11.c, -o, /tmp/code_11.o]
+
+⚙️  Analyzing code_12.c ...
+✅ code_12.c: 0 issues found
+
+⚙️  Analyzing code_13.c ...
+✅ code_13.c: 0 issues found
+
+⚙️  Analyzing code_14.c ...
+✅ code_14.c: 0 issues found
+
+⚙️  Analyzing code_15.c ...
+✅ code_15.c: 0 issues found
+
+⚙️  Analyzing code_16.c ...
+✅ code_16.c: 0 issues found
+
+⚙️  Analyzing code_17.c ...
+✅ code_17.c: 0 issues found
+
+⚙️  Analyzing code_18.c ...
+✅ code_18.c: 0 issues found
+
+⚙️  Analyzing code_19.c ...
+✅ code_19.c: 0 issues found
+
+⚙️  Analyzing code_2.c ...
+✅ code_2.c: 0 issues found
+
+⚙️  Analyzing code_20.c ...
+❌ Failed to create database for code_20.c
+Initializing database at /scratch/ykw5396/llm_outputs/iter_3/feedback/codeql_dbs/db_code_20.
+Running build command: [/scratch/ykw5396/llvm-14/bin/clang, -std=c11, -Wall, -Wextra, -c, code_20.c, -o, /tmp/code_20.o]
+Running command in /scratch/ykw5396/llm_outputs/iter_3/cleaned_code: [/scratch/ykw5396/llvm-14/bin/clang, -std=c11, -Wall, -Wextra, -c, code_20.c, -o, /tmp/code_20.o]
+A fatal error occurred: Exit status 1 from command: [/scratch/ykw5396/llvm-14/bin/clang, -std=c11, -Wall, -Wextra, -c, code_20.c, -o, /tmp/code_20.o]
+
+⚙️  Analyzing code_3.c ...
+✅ code_3.c: 0 issues found
+
+⚙️  Analyzing code_4.c ...
+✅ code_4.c: 0 issues found
+
+⚙️  Analyzing code_5.c ...
+✅ code_5.c: 0 issues found
+
+⚙️  Analyzing code_6.c ...
+✅ code_6.c: 0 issues found
+
+⚙️  Analyzing code_7.c ...
+✅ code_7.c: 0 issues found
+
+⚙️  Analyzing code_8.c ...
+✅ code_8.c: 0 issues found
+
+⚙️  Analyzing code_9.c ...
+✅ code_9.c: 0 issues found
+
+✅ Detailed report saved to /scratch/ykw5396/llm_outputs/iter_3/feedback/codeql_feedback.txt
+✅ CodeQL OK
+🔧 Step 4: Compile to LLVM bitcode & link mocks...
+   ✅ code_10
+[LLVM-LINK] code_10: /scratch/ykw5396/llm_outputs/iter_3/bitcode/code_10.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_3/bitcode_linked/code_10.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_3/bitcode_linked/code_10.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ❌ code_11
+   ✅ code_12
+[LLVM-LINK] code_12: /scratch/ykw5396/llm_outputs/iter_3/bitcode/code_12.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_3/bitcode_linked/code_12.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_3/bitcode_linked/code_12.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_13
+[LLVM-LINK] code_13: /scratch/ykw5396/llm_outputs/iter_3/bitcode/code_13.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_3/bitcode_linked/code_13.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_3/bitcode_linked/code_13.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_14
+[LLVM-LINK] code_14: /scratch/ykw5396/llm_outputs/iter_3/bitcode/code_14.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_3/bitcode_linked/code_14.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_3/bitcode_linked/code_14.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_15
+[LLVM-LINK] code_15: /scratch/ykw5396/llm_outputs/iter_3/bitcode/code_15.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_3/bitcode_linked/code_15.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_3/bitcode_linked/code_15.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_16
+[LLVM-LINK] code_16: /scratch/ykw5396/llm_outputs/iter_3/bitcode/code_16.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_3/bitcode_linked/code_16.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_3/bitcode_linked/code_16.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_17
+[LLVM-LINK] code_17: /scratch/ykw5396/llm_outputs/iter_3/bitcode/code_17.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_3/bitcode_linked/code_17.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_3/bitcode_linked/code_17.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_18
+[LLVM-LINK] code_18: /scratch/ykw5396/llm_outputs/iter_3/bitcode/code_18.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_3/bitcode_linked/code_18.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_3/bitcode_linked/code_18.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_19
+[LLVM-LINK] code_19: /scratch/ykw5396/llm_outputs/iter_3/bitcode/code_19.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_3/bitcode_linked/code_19.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_3/bitcode_linked/code_19.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_1
+[LLVM-LINK] code_1: /scratch/ykw5396/llm_outputs/iter_3/bitcode/code_1.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_3/bitcode_linked/code_1.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_3/bitcode_linked/code_1.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ❌ code_20
+   ✅ code_2
+[LLVM-LINK] code_2: /scratch/ykw5396/llm_outputs/iter_3/bitcode/code_2.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_3/bitcode_linked/code_2.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_3/bitcode_linked/code_2.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_3
+[LLVM-LINK] code_3: /scratch/ykw5396/llm_outputs/iter_3/bitcode/code_3.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_3/bitcode_linked/code_3.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_3/bitcode_linked/code_3.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_4
+[LLVM-LINK] code_4: /scratch/ykw5396/llm_outputs/iter_3/bitcode/code_4.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_3/bitcode_linked/code_4.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_3/bitcode_linked/code_4.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_5
+[LLVM-LINK] code_5: /scratch/ykw5396/llm_outputs/iter_3/bitcode/code_5.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_3/bitcode_linked/code_5.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_3/bitcode_linked/code_5.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_6
+[LLVM-LINK] code_6: /scratch/ykw5396/llm_outputs/iter_3/bitcode/code_6.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_3/bitcode_linked/code_6.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_3/bitcode_linked/code_6.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_7
+[LLVM-LINK] code_7: /scratch/ykw5396/llm_outputs/iter_3/bitcode/code_7.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_3/bitcode_linked/code_7.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_3/bitcode_linked/code_7.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_8
+[LLVM-LINK] code_8: /scratch/ykw5396/llm_outputs/iter_3/bitcode/code_8.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_3/bitcode_linked/code_8.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_3/bitcode_linked/code_8.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_9
+[LLVM-LINK] code_9: /scratch/ykw5396/llm_outputs/iter_3/bitcode/code_9.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_3/bitcode_linked/code_9.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_3/bitcode_linked/code_9.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+❌ Compile/Link issues present or tool missing
+🧠 Step 5: KLEE (naive, scanf mocked)...
+   ▶ code_10
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_3/klee_output/code_10
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_3/klee_output/klee_code_10.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_12
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_3/klee_output/code_12
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_3/klee_output/klee_code_12.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_13
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_3/klee_output/code_13
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_3/klee_output/klee_code_13.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=4  (no actual errors)
+   ▶ code_14
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_3/klee_output/code_14
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_3/klee_output/klee_code_14.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_15
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_3/klee_output/code_15
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_3/klee_output/klee_code_15.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_16
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_3/klee_output/code_16
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_3/klee_output/klee_code_16.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_17
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_3/klee_output/code_17
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_3/klee_output/klee_code_17.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_18
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_3/klee_output/code_18
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_3/klee_output/klee_code_18.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_19
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_3/klee_output/code_19
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_3/klee_output/klee_code_19.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=5  (no actual errors)
+   ▶ code_1
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_3/klee_output/code_1
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_3/klee_output/klee_code_1.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=4  (no actual errors)
+   ▶ code_2
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_3/klee_output/code_2
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_3/klee_output/klee_code_2.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_3
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_3/klee_output/code_3
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_3/klee_output/klee_code_3.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_4
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_3/klee_output/code_4
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_3/klee_output/klee_code_4.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=2  (no actual errors)
+   ▶ code_5
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_3/klee_output/code_5
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_3/klee_output/klee_code_5.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=6  (no actual errors)
+   ▶ code_6
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_3/klee_output/code_6
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_3/klee_output/klee_code_6.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_7
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_3/klee_output/code_7
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_3/klee_output/klee_code_7.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_8
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_3/klee_output/code_8
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_3/klee_output/klee_code_8.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=4  Errors=2
+   ▶ code_9
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_3/klee_output/code_9
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_3/klee_output/klee_code_9.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+❌ KLEE issues present
+======================================================
+📋 Iteration 3 Summary
+======================================================
+Bitcode files (raw):         18
+Compilation+Link failures:   2
+Detected CodeQL issues:      0
+Detected KLEE errors (.err): 1
+------------------------------------------------------
+CodeQL OK:            yes
+Compile+Link OK:      no
+KLEE OK:              no
+✅ Iteration 3 summary → /scratch/ykw5396/llm_outputs/iter_3/reports/summary_iter_3.txt
+
+===============================
+🌀 Iteration 4  →  /scratch/ykw5396/llm_outputs/iter_4
+===============================
+Step 1: LLM generate...
+♻️ Regenerating 5 problematic file(s): 11 1 20 2 8
+The attention mask is not set and cannot be inferred from input because pad token is same as eos token. As a consequence, you may observe unexpected behavior. Please pass your input's `attention_mask` to obtain reliable results.
+🧩 Selective mode: regenerating only indices ['11', '1', '20', '2', '8']
+✅ Using device: cuda
+🔄 Loading model: deepseek-ai/deepseek-coder-1.3b-base
+📁 OUTPUT_DIR: /scratch/ykw5396/llm_outputs/iter_4/generated_code
+🗂 PROMPTS_DIR: /scratch/ykw5396/llm_outputs/iter_1/generated_code/prompts
+🗂 FEEDBACK_DIR: /scratch/ykw5396/llm_outputs/iter_3/feedback
+✅ Model loaded successfully.
+📦 Using 20 prompts (directory mode)
+
+🚀 Generating code_1.c
+📝 Prompt preview: def OXzHP():
+    """There are n banks in the city where Vasya lives, they are lo...
+✅ Saved clean → /scratch/ykw5396/llm_outputs/iter_4/generated_code/code_1.c
+
+🚀 Generating code_2.c
+📝 Prompt preview: def MiSRf():
+    """Kitahara Haruki has bought n apples for Touma Kazusa and Ogi...
+✅ Saved clean → /scratch/ykw5396/llm_outputs/iter_4/generated_code/code_2.c
+⏩ Skipping code_3.c (not in --only list)
+⏩ Skipping code_4.c (not in --only list)
+⏩ Skipping code_5.c (not in --only list)
+⏩ Skipping code_6.c (not in --only list)
+⏩ Skipping code_7.c (not in --only list)
+
+🚀 Generating code_8.c
+📝 Prompt preview: def wKMBp():
+    """Magnus decided to play a classic chess game. Though what he ...
+✅ Saved clean → /scratch/ykw5396/llm_outputs/iter_4/generated_code/code_8.c
+⏩ Skipping code_9.c (not in --only list)
+⏩ Skipping code_10.c (not in --only list)
+
+🚀 Generating code_11.c
+📝 Prompt preview: def LiCkN():
+    """You are an environmental activist at heart but the reality i...
+✅ Saved clean → /scratch/ykw5396/llm_outputs/iter_4/generated_code/code_11.c
+⏩ Skipping code_12.c (not in --only list)
+⏩ Skipping code_13.c (not in --only list)
+⏩ Skipping code_14.c (not in --only list)
+⏩ Skipping code_15.c (not in --only list)
+⏩ Skipping code_16.c (not in --only list)
+⏩ Skipping code_17.c (not in --only list)
+⏩ Skipping code_18.c (not in --only list)
+⏩ Skipping code_19.c (not in --only list)
+
+🚀 Generating code_20.c
+📝 Prompt preview: def IWekJ():
+    """You are given an array $a$ of length $n$.
+
+You are also give...
+✅ Saved clean → /scratch/ykw5396/llm_outputs/iter_4/generated_code/code_20.c
+
+🎉 Code generation complete!
+📁 Check folder: /scratch/ykw5396/llm_outputs/iter_4/generated_code
+✅ LLM done (total files in this iteration: 20)
+Step 2: Cleaning...
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_4/generated_code/code_10.c → /scratch/ykw5396/llm_outputs/iter_4/cleaned_code/code_10.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_4/generated_code/code_11.c → /scratch/ykw5396/llm_outputs/iter_4/cleaned_code/code_11.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_4/generated_code/code_12.c → /scratch/ykw5396/llm_outputs/iter_4/cleaned_code/code_12.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_4/generated_code/code_13.c → /scratch/ykw5396/llm_outputs/iter_4/cleaned_code/code_13.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_4/generated_code/code_14.c → /scratch/ykw5396/llm_outputs/iter_4/cleaned_code/code_14.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_4/generated_code/code_15.c → /scratch/ykw5396/llm_outputs/iter_4/cleaned_code/code_15.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_4/generated_code/code_16.c → /scratch/ykw5396/llm_outputs/iter_4/cleaned_code/code_16.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_4/generated_code/code_17.c → /scratch/ykw5396/llm_outputs/iter_4/cleaned_code/code_17.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_4/generated_code/code_18.c → /scratch/ykw5396/llm_outputs/iter_4/cleaned_code/code_18.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_4/generated_code/code_19.c → /scratch/ykw5396/llm_outputs/iter_4/cleaned_code/code_19.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_4/generated_code/code_1.c → /scratch/ykw5396/llm_outputs/iter_4/cleaned_code/code_1.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_4/generated_code/code_20.c → /scratch/ykw5396/llm_outputs/iter_4/cleaned_code/code_20.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_4/generated_code/code_2.c → /scratch/ykw5396/llm_outputs/iter_4/cleaned_code/code_2.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_4/generated_code/code_3.c → /scratch/ykw5396/llm_outputs/iter_4/cleaned_code/code_3.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_4/generated_code/code_4.c → /scratch/ykw5396/llm_outputs/iter_4/cleaned_code/code_4.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_4/generated_code/code_5.c → /scratch/ykw5396/llm_outputs/iter_4/cleaned_code/code_5.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_4/generated_code/code_6.c → /scratch/ykw5396/llm_outputs/iter_4/cleaned_code/code_6.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_4/generated_code/code_7.c → /scratch/ykw5396/llm_outputs/iter_4/cleaned_code/code_7.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_4/generated_code/code_8.c → /scratch/ykw5396/llm_outputs/iter_4/cleaned_code/code_8.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_4/generated_code/code_9.c → /scratch/ykw5396/llm_outputs/iter_4/cleaned_code/code_9.c
+✓ Cleaned → /scratch/ykw5396/llm_outputs/iter_4/cleaned_code
+🔍 Step 3: CodeQL...
+🔍 Using CodeQL binary: /scratch/ykw5396/codeql/codeql
+📦 Using query pack: codeql/cpp-queries
+🛠  Build compiler: /scratch/ykw5396/llvm-14/bin/clang
+✅ Found 20 source files to analyze.
+
+⚙️  Analyzing code_1.c ...
+✅ code_1.c: 0 issues found
+
+⚙️  Analyzing code_10.c ...
+✅ code_10.c: 0 issues found
+
+⚙️  Analyzing code_11.c ...
+✅ code_11.c: 0 issues found
+
+⚙️  Analyzing code_12.c ...
+✅ code_12.c: 0 issues found
+
+⚙️  Analyzing code_13.c ...
+✅ code_13.c: 0 issues found
+
+⚙️  Analyzing code_14.c ...
+✅ code_14.c: 0 issues found
+
+⚙️  Analyzing code_15.c ...
+✅ code_15.c: 0 issues found
+
+⚙️  Analyzing code_16.c ...
+✅ code_16.c: 0 issues found
+
+⚙️  Analyzing code_17.c ...
+✅ code_17.c: 0 issues found
+
+⚙️  Analyzing code_18.c ...
+✅ code_18.c: 0 issues found
+
+⚙️  Analyzing code_19.c ...
+✅ code_19.c: 0 issues found
+
+⚙️  Analyzing code_2.c ...
+✅ code_2.c: 0 issues found
+
+⚙️  Analyzing code_20.c ...
+❌ Failed to create database for code_20.c
+Initializing database at /scratch/ykw5396/llm_outputs/iter_4/feedback/codeql_dbs/db_code_20.
+Running build command: [/scratch/ykw5396/llvm-14/bin/clang, -std=c11, -Wall, -Wextra, -c, code_20.c, -o, /tmp/code_20.o]
+Running command in /scratch/ykw5396/llm_outputs/iter_4/cleaned_code: [/scratch/ykw5396/llvm-14/bin/clang, -std=c11, -Wall, -Wextra, -c, code_20.c, -o, /tmp/code_20.o]
+A fatal error occurred: Exit status 1 from command: [/scratch/ykw5396/llvm-14/bin/clang, -std=c11, -Wall, -Wextra, -c, code_20.c, -o, /tmp/code_20.o]
+
+⚙️  Analyzing code_3.c ...
+✅ code_3.c: 0 issues found
+
+⚙️  Analyzing code_4.c ...
+✅ code_4.c: 0 issues found
+
+⚙️  Analyzing code_5.c ...
+✅ code_5.c: 0 issues found
+
+⚙️  Analyzing code_6.c ...
+✅ code_6.c: 0 issues found
+
+⚙️  Analyzing code_7.c ...
+✅ code_7.c: 0 issues found
+
+⚙️  Analyzing code_8.c ...
+✅ code_8.c: 0 issues found
+
+⚙️  Analyzing code_9.c ...
+✅ code_9.c: 0 issues found
+
+✅ Detailed report saved to /scratch/ykw5396/llm_outputs/iter_4/feedback/codeql_feedback.txt
+✅ CodeQL OK
+🔧 Step 4: Compile to LLVM bitcode & link mocks...
+   ✅ code_10
+[LLVM-LINK] code_10: /scratch/ykw5396/llm_outputs/iter_4/bitcode/code_10.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_4/bitcode_linked/code_10.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_4/bitcode_linked/code_10.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_11
+[LLVM-LINK] code_11: /scratch/ykw5396/llm_outputs/iter_4/bitcode/code_11.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_4/bitcode_linked/code_11.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_4/bitcode_linked/code_11.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_12
+[LLVM-LINK] code_12: /scratch/ykw5396/llm_outputs/iter_4/bitcode/code_12.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_4/bitcode_linked/code_12.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_4/bitcode_linked/code_12.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_13
+[LLVM-LINK] code_13: /scratch/ykw5396/llm_outputs/iter_4/bitcode/code_13.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_4/bitcode_linked/code_13.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_4/bitcode_linked/code_13.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_14
+[LLVM-LINK] code_14: /scratch/ykw5396/llm_outputs/iter_4/bitcode/code_14.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_4/bitcode_linked/code_14.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_4/bitcode_linked/code_14.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_15
+[LLVM-LINK] code_15: /scratch/ykw5396/llm_outputs/iter_4/bitcode/code_15.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_4/bitcode_linked/code_15.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_4/bitcode_linked/code_15.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_16
+[LLVM-LINK] code_16: /scratch/ykw5396/llm_outputs/iter_4/bitcode/code_16.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_4/bitcode_linked/code_16.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_4/bitcode_linked/code_16.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_17
+[LLVM-LINK] code_17: /scratch/ykw5396/llm_outputs/iter_4/bitcode/code_17.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_4/bitcode_linked/code_17.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_4/bitcode_linked/code_17.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_18
+[LLVM-LINK] code_18: /scratch/ykw5396/llm_outputs/iter_4/bitcode/code_18.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_4/bitcode_linked/code_18.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_4/bitcode_linked/code_18.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_19
+[LLVM-LINK] code_19: /scratch/ykw5396/llm_outputs/iter_4/bitcode/code_19.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_4/bitcode_linked/code_19.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_4/bitcode_linked/code_19.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_1
+[LLVM-LINK] code_1: /scratch/ykw5396/llm_outputs/iter_4/bitcode/code_1.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_4/bitcode_linked/code_1.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_4/bitcode_linked/code_1.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ❌ code_20
+   ✅ code_2
+[LLVM-LINK] code_2: /scratch/ykw5396/llm_outputs/iter_4/bitcode/code_2.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_4/bitcode_linked/code_2.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_4/bitcode_linked/code_2.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_3
+[LLVM-LINK] code_3: /scratch/ykw5396/llm_outputs/iter_4/bitcode/code_3.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_4/bitcode_linked/code_3.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_4/bitcode_linked/code_3.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_4
+[LLVM-LINK] code_4: /scratch/ykw5396/llm_outputs/iter_4/bitcode/code_4.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_4/bitcode_linked/code_4.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_4/bitcode_linked/code_4.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_5
+[LLVM-LINK] code_5: /scratch/ykw5396/llm_outputs/iter_4/bitcode/code_5.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_4/bitcode_linked/code_5.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_4/bitcode_linked/code_5.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_6
+[LLVM-LINK] code_6: /scratch/ykw5396/llm_outputs/iter_4/bitcode/code_6.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_4/bitcode_linked/code_6.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_4/bitcode_linked/code_6.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_7
+[LLVM-LINK] code_7: /scratch/ykw5396/llm_outputs/iter_4/bitcode/code_7.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_4/bitcode_linked/code_7.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_4/bitcode_linked/code_7.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_8
+[LLVM-LINK] code_8: /scratch/ykw5396/llm_outputs/iter_4/bitcode/code_8.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_4/bitcode_linked/code_8.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_4/bitcode_linked/code_8.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_9
+[LLVM-LINK] code_9: /scratch/ykw5396/llm_outputs/iter_4/bitcode/code_9.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_4/bitcode_linked/code_9.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_4/bitcode_linked/code_9.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+❌ Compile/Link issues present or tool missing
+🧠 Step 5: KLEE (naive, scanf mocked)...
+   ▶ code_10
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_4/klee_output/code_10
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_4/klee_output/klee_code_10.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_11
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_4/klee_output/code_11
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_4/klee_output/klee_code_11.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_12
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_4/klee_output/code_12
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_4/klee_output/klee_code_12.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_13
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_4/klee_output/code_13
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_4/klee_output/klee_code_13.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=4  (no actual errors)
+   ▶ code_14
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_4/klee_output/code_14
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_4/klee_output/klee_code_14.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_15
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_4/klee_output/code_15
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_4/klee_output/klee_code_15.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_16
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_4/klee_output/code_16
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_4/klee_output/klee_code_16.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_17
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_4/klee_output/code_17
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_4/klee_output/klee_code_17.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_18
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_4/klee_output/code_18
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_4/klee_output/klee_code_18.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_19
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_4/klee_output/code_19
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_4/klee_output/klee_code_19.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=5  (no actual errors)
+   ▶ code_1
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_4/klee_output/code_1
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_4/klee_output/klee_code_1.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_2
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_4/klee_output/code_2
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_4/klee_output/klee_code_2.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=3  (no actual errors)
+   ▶ code_3
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_4/klee_output/code_3
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_4/klee_output/klee_code_3.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_4
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_4/klee_output/code_4
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_4/klee_output/klee_code_4.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=2  (no actual errors)
+   ▶ code_5
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_4/klee_output/code_5
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_4/klee_output/klee_code_5.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=6  (no actual errors)
+   ▶ code_6
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_4/klee_output/code_6
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_4/klee_output/klee_code_6.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_7
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_4/klee_output/code_7
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_4/klee_output/klee_code_7.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_8
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_4/klee_output/code_8
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_4/klee_output/klee_code_8.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=4  Errors=2
+   ▶ code_9
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_4/klee_output/code_9
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_4/klee_output/klee_code_9.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+❌ KLEE issues present
+======================================================
+📋 Iteration 4 Summary
+======================================================
+Bitcode files (raw):         19
+Compilation+Link failures:   1
+Detected CodeQL issues:      0
+Detected KLEE errors (.err): 1
+------------------------------------------------------
+CodeQL OK:            yes
+Compile+Link OK:      no
+KLEE OK:              no
+✅ Iteration 4 summary → /scratch/ykw5396/llm_outputs/iter_4/reports/summary_iter_4.txt
+
+===============================
+🌀 Iteration 5  →  /scratch/ykw5396/llm_outputs/iter_5
+===============================
+Step 1: LLM generate...
+♻️ Regenerating 3 problematic file(s): 20 2 8
+The attention mask is not set and cannot be inferred from input because pad token is same as eos token. As a consequence, you may observe unexpected behavior. Please pass your input's `attention_mask` to obtain reliable results.
+🧩 Selective mode: regenerating only indices ['20', '2', '8']
+✅ Using device: cuda
+🔄 Loading model: deepseek-ai/deepseek-coder-1.3b-base
+📁 OUTPUT_DIR: /scratch/ykw5396/llm_outputs/iter_5/generated_code
+🗂 PROMPTS_DIR: /scratch/ykw5396/llm_outputs/iter_1/generated_code/prompts
+🗂 FEEDBACK_DIR: /scratch/ykw5396/llm_outputs/iter_4/feedback
+✅ Model loaded successfully.
+📦 Using 20 prompts (directory mode)
+⏩ Skipping code_1.c (not in --only list)
+
+🚀 Generating code_2.c
+📝 Prompt preview: def MiSRf():
+    """Kitahara Haruki has bought n apples for Touma Kazusa and Ogi...
+✅ Saved clean → /scratch/ykw5396/llm_outputs/iter_5/generated_code/code_2.c
+⏩ Skipping code_3.c (not in --only list)
+⏩ Skipping code_4.c (not in --only list)
+⏩ Skipping code_5.c (not in --only list)
+⏩ Skipping code_6.c (not in --only list)
+⏩ Skipping code_7.c (not in --only list)
+
+🚀 Generating code_8.c
+📝 Prompt preview: def wKMBp():
+    """Magnus decided to play a classic chess game. Though what he ...
+✅ Saved clean → /scratch/ykw5396/llm_outputs/iter_5/generated_code/code_8.c
+⏩ Skipping code_9.c (not in --only list)
+⏩ Skipping code_10.c (not in --only list)
+⏩ Skipping code_11.c (not in --only list)
+⏩ Skipping code_12.c (not in --only list)
+⏩ Skipping code_13.c (not in --only list)
+⏩ Skipping code_14.c (not in --only list)
+⏩ Skipping code_15.c (not in --only list)
+⏩ Skipping code_16.c (not in --only list)
+⏩ Skipping code_17.c (not in --only list)
+⏩ Skipping code_18.c (not in --only list)
+⏩ Skipping code_19.c (not in --only list)
+
+🚀 Generating code_20.c
+📝 Prompt preview: def IWekJ():
+    """You are given an array $a$ of length $n$.
+
+You are also give...
+✅ Saved clean → /scratch/ykw5396/llm_outputs/iter_5/generated_code/code_20.c
+
+🎉 Code generation complete!
+📁 Check folder: /scratch/ykw5396/llm_outputs/iter_5/generated_code
+✅ LLM done (total files in this iteration: 20)
+Step 2: Cleaning...
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_5/generated_code/code_10.c → /scratch/ykw5396/llm_outputs/iter_5/cleaned_code/code_10.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_5/generated_code/code_11.c → /scratch/ykw5396/llm_outputs/iter_5/cleaned_code/code_11.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_5/generated_code/code_12.c → /scratch/ykw5396/llm_outputs/iter_5/cleaned_code/code_12.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_5/generated_code/code_13.c → /scratch/ykw5396/llm_outputs/iter_5/cleaned_code/code_13.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_5/generated_code/code_14.c → /scratch/ykw5396/llm_outputs/iter_5/cleaned_code/code_14.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_5/generated_code/code_15.c → /scratch/ykw5396/llm_outputs/iter_5/cleaned_code/code_15.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_5/generated_code/code_16.c → /scratch/ykw5396/llm_outputs/iter_5/cleaned_code/code_16.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_5/generated_code/code_17.c → /scratch/ykw5396/llm_outputs/iter_5/cleaned_code/code_17.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_5/generated_code/code_18.c → /scratch/ykw5396/llm_outputs/iter_5/cleaned_code/code_18.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_5/generated_code/code_19.c → /scratch/ykw5396/llm_outputs/iter_5/cleaned_code/code_19.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_5/generated_code/code_1.c → /scratch/ykw5396/llm_outputs/iter_5/cleaned_code/code_1.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_5/generated_code/code_20.c → /scratch/ykw5396/llm_outputs/iter_5/cleaned_code/code_20.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_5/generated_code/code_2.c → /scratch/ykw5396/llm_outputs/iter_5/cleaned_code/code_2.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_5/generated_code/code_3.c → /scratch/ykw5396/llm_outputs/iter_5/cleaned_code/code_3.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_5/generated_code/code_4.c → /scratch/ykw5396/llm_outputs/iter_5/cleaned_code/code_4.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_5/generated_code/code_5.c → /scratch/ykw5396/llm_outputs/iter_5/cleaned_code/code_5.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_5/generated_code/code_6.c → /scratch/ykw5396/llm_outputs/iter_5/cleaned_code/code_6.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_5/generated_code/code_7.c → /scratch/ykw5396/llm_outputs/iter_5/cleaned_code/code_7.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_5/generated_code/code_8.c → /scratch/ykw5396/llm_outputs/iter_5/cleaned_code/code_8.c
+✓ Cleaned: /scratch/ykw5396/llm_outputs/iter_5/generated_code/code_9.c → /scratch/ykw5396/llm_outputs/iter_5/cleaned_code/code_9.c
+✓ Cleaned → /scratch/ykw5396/llm_outputs/iter_5/cleaned_code
+🔍 Step 3: CodeQL...
+🔍 Using CodeQL binary: /scratch/ykw5396/codeql/codeql
+📦 Using query pack: codeql/cpp-queries
+🛠  Build compiler: /scratch/ykw5396/llvm-14/bin/clang
+✅ Found 20 source files to analyze.
+
+⚙️  Analyzing code_1.c ...
+✅ code_1.c: 0 issues found
+
+⚙️  Analyzing code_10.c ...
+✅ code_10.c: 0 issues found
+
+⚙️  Analyzing code_11.c ...
+✅ code_11.c: 0 issues found
+
+⚙️  Analyzing code_12.c ...
+✅ code_12.c: 0 issues found
+
+⚙️  Analyzing code_13.c ...
+✅ code_13.c: 0 issues found
+
+⚙️  Analyzing code_14.c ...
+✅ code_14.c: 0 issues found
+
+⚙️  Analyzing code_15.c ...
+✅ code_15.c: 0 issues found
+
+⚙️  Analyzing code_16.c ...
+✅ code_16.c: 0 issues found
+
+⚙️  Analyzing code_17.c ...
+✅ code_17.c: 0 issues found
+
+⚙️  Analyzing code_18.c ...
+✅ code_18.c: 0 issues found
+
+⚙️  Analyzing code_19.c ...
+✅ code_19.c: 0 issues found
+
+⚙️  Analyzing code_2.c ...
+✅ code_2.c: 0 issues found
+
+⚙️  Analyzing code_20.c ...
+❌ Failed to create database for code_20.c
+Initializing database at /scratch/ykw5396/llm_outputs/iter_5/feedback/codeql_dbs/db_code_20.
+Running build command: [/scratch/ykw5396/llvm-14/bin/clang, -std=c11, -Wall, -Wextra, -c, code_20.c, -o, /tmp/code_20.o]
+Running command in /scratch/ykw5396/llm_outputs/iter_5/cleaned_code: [/scratch/ykw5396/llvm-14/bin/clang, -std=c11, -Wall, -Wextra, -c, code_20.c, -o, /tmp/code_20.o]
+A fatal error occurred: Exit status 1 from command: [/scratch/ykw5396/llvm-14/bin/clang, -std=c11, -Wall, -Wextra, -c, code_20.c, -o, /tmp/code_20.o]
+
+⚙️  Analyzing code_3.c ...
+✅ code_3.c: 0 issues found
+
+⚙️  Analyzing code_4.c ...
+✅ code_4.c: 0 issues found
+
+⚙️  Analyzing code_5.c ...
+✅ code_5.c: 0 issues found
+
+⚙️  Analyzing code_6.c ...
+✅ code_6.c: 0 issues found
+
+⚙️  Analyzing code_7.c ...
+✅ code_7.c: 0 issues found
+
+⚙️  Analyzing code_8.c ...
+✅ code_8.c: 0 issues found
+
+⚙️  Analyzing code_9.c ...
+✅ code_9.c: 0 issues found
+
+✅ Detailed report saved to /scratch/ykw5396/llm_outputs/iter_5/feedback/codeql_feedback.txt
+✅ CodeQL OK
+🔧 Step 4: Compile to LLVM bitcode & link mocks...
+   ✅ code_10
+[LLVM-LINK] code_10: /scratch/ykw5396/llm_outputs/iter_5/bitcode/code_10.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_5/bitcode_linked/code_10.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_5/bitcode_linked/code_10.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_11
+[LLVM-LINK] code_11: /scratch/ykw5396/llm_outputs/iter_5/bitcode/code_11.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_5/bitcode_linked/code_11.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_5/bitcode_linked/code_11.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_12
+[LLVM-LINK] code_12: /scratch/ykw5396/llm_outputs/iter_5/bitcode/code_12.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_5/bitcode_linked/code_12.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_5/bitcode_linked/code_12.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_13
+[LLVM-LINK] code_13: /scratch/ykw5396/llm_outputs/iter_5/bitcode/code_13.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_5/bitcode_linked/code_13.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_5/bitcode_linked/code_13.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_14
+[LLVM-LINK] code_14: /scratch/ykw5396/llm_outputs/iter_5/bitcode/code_14.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_5/bitcode_linked/code_14.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_5/bitcode_linked/code_14.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_15
+[LLVM-LINK] code_15: /scratch/ykw5396/llm_outputs/iter_5/bitcode/code_15.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_5/bitcode_linked/code_15.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_5/bitcode_linked/code_15.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_16
+[LLVM-LINK] code_16: /scratch/ykw5396/llm_outputs/iter_5/bitcode/code_16.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_5/bitcode_linked/code_16.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_5/bitcode_linked/code_16.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_17
+[LLVM-LINK] code_17: /scratch/ykw5396/llm_outputs/iter_5/bitcode/code_17.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_5/bitcode_linked/code_17.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_5/bitcode_linked/code_17.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_18
+[LLVM-LINK] code_18: /scratch/ykw5396/llm_outputs/iter_5/bitcode/code_18.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_5/bitcode_linked/code_18.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_5/bitcode_linked/code_18.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_19
+[LLVM-LINK] code_19: /scratch/ykw5396/llm_outputs/iter_5/bitcode/code_19.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_5/bitcode_linked/code_19.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_5/bitcode_linked/code_19.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_1
+[LLVM-LINK] code_1: /scratch/ykw5396/llm_outputs/iter_5/bitcode/code_1.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_5/bitcode_linked/code_1.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_5/bitcode_linked/code_1.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ❌ code_20
+   ✅ code_2
+[LLVM-LINK] code_2: /scratch/ykw5396/llm_outputs/iter_5/bitcode/code_2.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_5/bitcode_linked/code_2.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_5/bitcode_linked/code_2.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_3
+[LLVM-LINK] code_3: /scratch/ykw5396/llm_outputs/iter_5/bitcode/code_3.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_5/bitcode_linked/code_3.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_5/bitcode_linked/code_3.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_4
+[LLVM-LINK] code_4: /scratch/ykw5396/llm_outputs/iter_5/bitcode/code_4.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_5/bitcode_linked/code_4.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_5/bitcode_linked/code_4.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_5
+[LLVM-LINK] code_5: /scratch/ykw5396/llm_outputs/iter_5/bitcode/code_5.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_5/bitcode_linked/code_5.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_5/bitcode_linked/code_5.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_6
+[LLVM-LINK] code_6: /scratch/ykw5396/llm_outputs/iter_5/bitcode/code_6.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_5/bitcode_linked/code_6.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_5/bitcode_linked/code_6.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_7
+[LLVM-LINK] code_7: /scratch/ykw5396/llm_outputs/iter_5/bitcode/code_7.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_5/bitcode_linked/code_7.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_5/bitcode_linked/code_7.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_8
+[LLVM-LINK] code_8: /scratch/ykw5396/llm_outputs/iter_5/bitcode/code_8.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_5/bitcode_linked/code_8.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_5/bitcode_linked/code_8.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+   ✅ code_9
+[LLVM-LINK] code_9: /scratch/ykw5396/llm_outputs/iter_5/bitcode/code_9.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_scanf.bc  +  /home/ugrads/ykw5396/basic-rl-feedback-workflow/klee_mocks/mock_libc.bc  →  /scratch/ykw5396/llm_outputs/iter_5/bitcode_linked/code_9.bc
+[NM] /scratch/ykw5396/llm_outputs/iter_5/bitcode_linked/code_9.bc :: scanf symbols
+---------------- T __isoc99_scanf
+---------------- T scanf
+❌ Compile/Link issues present or tool missing
+🧠 Step 5: KLEE (naive, scanf mocked)...
+   ▶ code_10
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_5/klee_output/code_10
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_5/klee_output/klee_code_10.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_11
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_5/klee_output/code_11
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_5/klee_output/klee_code_11.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_12
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_5/klee_output/code_12
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_5/klee_output/klee_code_12.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_13
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_5/klee_output/code_13
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_5/klee_output/klee_code_13.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=4  (no actual errors)
+   ▶ code_14
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_5/klee_output/code_14
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_5/klee_output/klee_code_14.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_15
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_5/klee_output/code_15
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_5/klee_output/klee_code_15.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_16
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_5/klee_output/code_16
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_5/klee_output/klee_code_16.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_17
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_5/klee_output/code_17
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_5/klee_output/klee_code_17.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_18
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_5/klee_output/code_18
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_5/klee_output/klee_code_18.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_19
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_5/klee_output/code_19
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_5/klee_output/klee_code_19.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=5  (no actual errors)
+   ▶ code_1
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_5/klee_output/code_1
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_5/klee_output/klee_code_1.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_2
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_5/klee_output/code_2
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_5/klee_output/klee_code_2.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_3
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_5/klee_output/code_3
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_5/klee_output/klee_code_3.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_4
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_5/klee_output/code_4
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_5/klee_output/klee_code_4.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=2  (no actual errors)
+   ▶ code_5
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_5/klee_output/code_5
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_5/klee_output/klee_code_5.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=6  (no actual errors)
+   ▶ code_6
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_5/klee_output/code_6
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_5/klee_output/klee_code_6.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_7
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_5/klee_output/code_7
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_5/klee_output/klee_code_7.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+   ▶ code_8
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_5/klee_output/code_8
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_5/klee_output/klee_code_8.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=4  Errors=2
+   ▶ code_9
+     [KLEE] naive mode (no --posix-runtime, mocks linked)
+     [KLEE] Output dir → /scratch/ykw5396/llm_outputs/iter_5/klee_output/code_9
+     [KLEE] Log file   → /scratch/ykw5396/llm_outputs/iter_5/klee_output/klee_code_9.log
+--------------------------------------------------------
+--------------------------------------------------------
+     [KLEE] Done → Tests=1  (no actual errors)
+❌ KLEE issues present
+======================================================
+📋 Iteration 5 Summary
+======================================================
+Bitcode files (raw):         19
+Compilation+Link failures:   1
+Detected CodeQL issues:      0
+Detected KLEE errors (.err): 1
+------------------------------------------------------
+CodeQL OK:            yes
+Compile+Link OK:      no
+KLEE OK:              no
+✅ Iteration 5 summary → /scratch/ykw5396/llm_outputs/iter_5/reports/summary_iter_5.txt
+✅ Final report: /scratch/ykw5396/llm_outputs/final_summary.txt

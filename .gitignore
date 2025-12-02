@@ -1,0 +1,287 @@
+# Secure Code Generation Workflow - .gitignore
+
+# =============================================================================
+# Generated Code and Build Artifacts
+# =============================================================================
+
+# Generated code directory (contains LLM output and processed files)
+generated_code/
+gen_build/
+
+# KLEE symbolic execution output
+klee_output/
+klee-last/
+klee-out-*/
+
+# Analysis feedback and reports
+feedback/
+
+# =============================================================================
+# Compiled and Binary Files
+# =============================================================================
+
+# C/C++ compiled files
+*.o
+*.so
+*.dylib
+*.dll
+*.exe
+*.out
+*.app
+
+# LLVM bitcode files
+*.bc
+*.ll
+
+# Assembly files
+*.s
+*.S
+
+# Static libraries
+*.a
+*.lib
+
+# Shared libraries
+*.so.*
+
+# =============================================================================
+# Build Systems and Makefiles
+# =============================================================================
+
+# Build directories
+build/
+Build/
+BUILD/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+makefile
+
+# Ninja build files
+.ninja_deps
+.ninja_log
+build.ninja
+
+# =============================================================================
+# Python and Virtual Environments
+# =============================================================================
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+klee-venv/
+
+# =============================================================================
+# Model and Cache Files
+# =============================================================================
+
+# HuggingFace cache and models
+.cache/
+.huggingface/
+models/
+*.gguf
+*.ggml
+*.bin
+*.safetensors
+hf_cache/
+
+# pip cache
+pip-cache/
+
+# =============================================================================
+# IDE and Editor Files
+# =============================================================================
+
+# VS Code
+.vscode/
+.history/
+*.code-workspace
+
+# PyCharm
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+.netrwhist
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# =============================================================================
+# System and Temporary Files
+# =============================================================================
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+*.pid
+*.seed
+*.pid.lock
+
+# Swap files
+*.swp
+*.swo
+
+# =============================================================================
+# Security and Sensitive Files
+# =============================================================================
+
+# API keys and tokens
+.env.local
+.env.*.local
+secrets.json
+.secrets
+api_keys.txt
+tokens.txt
+
+# SSH keys
+id_rsa
+id_ed25519
+*.pem
+*.key
+!*.pub
+
+# =============================================================================
+# Database and Analysis Files
+# =============================================================================
+
+# CodeQL databases
+codeql_db/
+*.sarif
+*.csv
+
+# SQLite databases
+*.db
+*.sqlite
+*.sqlite3
+
+# =============================================================================
+# Archive and Compressed Files
+# =============================================================================
+
+*.zip
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+*.bz2
+*.xz
+
+# =============================================================================
+# Specific Tool Outputs
+# =============================================================================
+
+# KLEE specific
+*.ktest
+*.kquery
+*.err
+assembly.ll
+info
+messages.txt
+run.stats
+warnings.txt
+
+# Clang/LLVM
+*.pch
+*.gch
+
+# GCC
+*.d
+
+# =============================================================================
+# Keep These Files (Explicit Inclusions)
+# =============================================================================
+
+# Always include these important files even if they match patterns above
+!README.md
+!QUICKSTART.md
+!*.py
+!*.sh
+!*.json
+!*.txt
+!*.md
+!*.yml
+!*.yaml
+!Dockerfile
+!LICENSE
+!.gitignore
