@@ -413,9 +413,10 @@ FIXED CODE:
     raw_path.write_text(raw)
     
     # Debug output
-    print(f"   📝 Raw output length: {len(raw)} chars")
-    if len(raw) > 0:
-        print(f"   📝 First 200 chars: {raw[:200]}")
+    # Suppress verbose preview output during repair
+    # print(f"   📝 Raw output length: {len(raw)} chars")
+    # if len(raw) > 0:
+    #     print(f"   📝 First 200 chars: {raw[:200]}")
 
     fixed = extract_c_code_from_text(raw, fallback=current_code, repair_hint=repair_instructions)
     

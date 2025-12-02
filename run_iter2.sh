@@ -257,6 +257,15 @@ EOF
       # If simplified non-empty, overwrite
       if [ -s "$tmp_s" ]; then
         mv "$tmp_s" "$feedback_file"
+        
+        # Check if file contains ONLY a header (starts with ###) and nothing else
+        # Count non-header lines (lines that don't start with ###)
+        non_header_lines=$(grep -v '^###' "$feedback_file" | grep -v '^[[:space:]]*$' | wc -l)
+        if [ "$non_header_lines" -eq 0 ]; then
+          # File has only header(s), no actual error content - remove it
+          rm -f "$feedback_file"
+          : > "$feedback_file"  # Create empty file to maintain consistency
+        fi
       else
         rm -f "$tmp_s"
       fi
