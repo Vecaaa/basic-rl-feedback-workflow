@@ -196,6 +196,36 @@ EOF
               echo "    KLEE error: Symbolic-sized allocation detected (malloc/array size depends on input)" >> "$out_klee"
             fi
             echo "    Fix: Replace with fixed-size array (e.g., int arr[MAX_N]) and add bounds check" >> "$out_klee"
+          elif grep -qi "division by zero" "$err" || grep -qi "div by zero" "$err"; then
+            if [ -n "$err_line" ]; then
+              echo "    Line $err_line: Division by zero detected" >> "$out_klee"
+              if [ -n "$code_content" ]; then
+                echo "    Code: $code_content" >> "$out_klee"
+              fi
+            else
+              echo "    KLEE error: Division by zero" >> "$out_klee"
+            fi
+            echo "    Fix: Add check to ensure divisor is non-zero before division (e.g., if(divisor != 0) { ... })" >> "$out_klee"
+          elif grep -qi "null.*pointer" "$err" || grep -qi "dereference.*null" "$err"; then
+            if [ -n "$err_line" ]; then
+              echo "    Line $err_line: Null pointer dereference detected" >> "$out_klee"
+              if [ -n "$code_content" ]; then
+                echo "    Code: $code_content" >> "$out_klee"
+              fi
+            else
+              echo "    KLEE error: Null pointer dereference" >> "$out_klee"
+            fi
+            echo "    Fix: Add null check before dereferencing pointer (e.g., if(ptr != NULL) { ... })" >> "$out_klee"
+          elif grep -qi "out of bound" "$err" || grep -qi "overshift" "$err"; then
+            if [ -n "$err_line" ]; then
+              echo "    Line $err_line: Out-of-bounds array/buffer access detected" >> "$out_klee"
+              if [ -n "$code_content" ]; then
+                echo "    Code: $code_content" >> "$out_klee"
+              fi
+            else
+              echo "    KLEE error: Out-of-bounds array access" >> "$out_klee"
+            fi
+            echo "    Fix: Add bounds check before array access (e.g., if(index >= 0 && index < size) { ... })" >> "$out_klee"
           elif grep -qi "memory error" "$err"; then
             echo "    Memory error detected: $err_type" >> "$out_klee"
             if [ -n "$err_line" ]; then
@@ -204,6 +234,7 @@ EOF
                 echo "    Code: $code_content" >> "$out_klee"
               fi
             fi
+            echo "    Fix: Review memory access patterns and add appropriate bounds/null checks" >> "$out_klee"
           else
             echo "    KLEE error: $err_type" >> "$out_klee"
             if [ -n "$err_line" ]; then
@@ -217,12 +248,21 @@ EOF
         done
 
       else
-        # 没有 .err，但 log 可能有 crash / timeout 信息
+        # No .err files, but log may have crash / timeout / path explosion info
         local logf="$klee_dir/klee_${base}.log"
-        if grep -qiE "Segmentation fault|dumped core|KLEE: ERROR" "$logf" 2>/dev/null; then
-          echo "### KLEE runtime issue for ${base}.c" >> "$out_klee"
-          grep -iE "KLEE: ERROR|Segmentation fault|out of memory|dumped core|concretized symbolic size" "$logf" | head -n 10 | sed 's/^/    /' >> "$out_klee"
-          echo "" >> "$out_klee"
+        if [ -f "$logf" ]; then
+          # Check for path explosion or timeout issues
+          if grep -qiE "HaltTimer|timeout|Execution halting" "$logf"; then
+            echo "### KLEE path explosion/timeout for ${base}.c" >> "$out_klee"
+            echo "    KLEE exceeded time/path limits (possible path explosion or infinite loop)" >> "$out_klee"
+            grep -iE "HaltTimer|timeout|Execution halting|generated.*test" "$logf" | head -n 5 | sed 's/^/    /' >> "$out_klee"
+            echo "    Fix: Simplify control flow, add loop bounds, or reduce symbolic inputs" >> "$out_klee"
+            echo "" >> "$out_klee"
+          elif grep -qiE "Segmentation fault|dumped core|KLEE: ERROR" "$logf"; then
+            echo "### KLEE runtime issue for ${base}.c" >> "$out_klee"
+            grep -iE "KLEE: ERROR|Segmentation fault|out of memory|dumped core|concretized symbolic size" "$logf" | head -n 10 | sed 's/^/    /' >> "$out_klee"
+            echo "" >> "$out_klee"
+          fi
         fi
       fi
 
@@ -305,7 +345,7 @@ run_iteration(){
   echo "Step 1: LLM generate/repair..."
 
   # Load Config for Models
-  MODEL_FIXER="deepseek-ai/deepseek-coder-6.7b-instruct"
+  MODEL_FIXER="deepseek-ai/deepseek-coder-1.3b-instruct"
   MODEL_ANALYZER="mistralai/Mistral-7B-Instruct-v0.2"
 
   if [ "$iter" -eq 1 ]; then

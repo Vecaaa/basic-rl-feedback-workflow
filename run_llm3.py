@@ -256,8 +256,12 @@ def task_analyze(idx: int, current_code: str, feedback: str, output_dir: str):
 
     numbered_code = add_line_numbers(current_code)
     
-    # Check if this is a KLEE symbolic size error
+    # Check for various KLEE error types
     is_klee_symbolic_error = "concretized symbolic size" in feedback.lower() or "symbolic malloc" in feedback.lower()
+    is_klee_div_by_zero = "division by zero" in feedback.lower() or "div by zero" in feedback.lower()
+    is_klee_null_deref = "null pointer" in feedback.lower() or "dereference" in feedback.lower() and "null" in feedback.lower()
+    is_klee_out_of_bounds = "out of bound" in feedback.lower() or "out-of-bounds" in feedback.lower()
+    is_klee_path_explosion = "path explosion" in feedback.lower() or "exceeded time/path limits" in feedback.lower() or "halttimer" in feedback.lower()
     
     # Check if this is a CodeQL constant-comparison issue
     is_constant_comparison = "cpp/constant-comparison" in feedback.lower()
@@ -281,6 +285,82 @@ ERROR:
 {feedback}
 
 Output ONE specific repair instruction referencing the line number from the feedback."""
+    elif is_klee_div_by_zero:
+        prompt = f"""You are a KLEE division-by-zero error repair prompt generator.
+
+YOUR TASK: Find division operations in the code where the divisor could be zero. Add a check.
+
+IMPORTANT:
+1. You MUST identify the exact source line by QUOTING THE FULL LINE OF CODE ITSELF.
+2. Do NOT output any C code block.
+3. Output ONLY ONE single-line repair instruction
+4. Do NOT generate explanations or descriptions.
+5. Check for error of the line number mentioned in ERROR first if mentioned.
+
+CODE:
+{numbered_code}
+
+ERROR:
+{feedback}
+
+Output ONE specific repair instruction referencing the line number from the feedback."""
+    elif is_klee_null_deref:
+        prompt = f"""You are a KLEE null pointer dereference repair prompt generator.
+
+YOUR TASK: Find pointer dereferences where the pointer could be NULL. Add a null check.
+
+IMPORTANT:
+1. You MUST identify the exact source line by QUOTING THE FULL LINE OF CODE ITSELF.
+2. Do NOT output any C code block.
+3. Output ONLY ONE single-line repair instruction
+4. Do NOT generate explanations or descriptions.
+5. Check for error of the line number mentioned in ERROR first if mentioned.
+
+CODE:
+{numbered_code}
+
+ERROR:
+{feedback}
+
+Output ONE specific repair instruction referencing the line number from the feedback."""
+    elif is_klee_out_of_bounds:
+        prompt = f"""You are a KLEE out-of-bounds array access repair prompt generator.
+
+YOUR TASK: Find array/buffer accesses where the index could be out of bounds. Add bounds checking.
+
+IMPORTANT:
+1. You MUST identify the exact source line by QUOTING THE FULL LINE OF CODE ITSELF.
+2. Do NOT output any C code block.
+3. Output ONLY ONE single-line repair instruction
+4. Do NOT generate explanations or descriptions.
+5. Check for error of the line number mentioned in ERROR first if mentioned.
+
+CODE:
+{numbered_code}
+
+ERROR:
+{feedback}
+
+Output ONE specific repair instruction referencing the line number from the feedback."""
+    elif is_klee_path_explosion:
+        prompt = f"""You are a KLEE path explosion/timeout repair prompt generator.
+
+YOUR TASK: Identify complex control flow, unbounded loops, or excessive symbolic inputs causing path explosion.
+
+IMPORTANT:
+1. You MUST identify problematic loops or control flow by QUOTING THE RELEVANT CODE.
+2. Do NOT output any C code block.
+3. Output ONLY ONE single-line repair instruction
+4. Do NOT generate explanations or descriptions.
+5. Suggest adding loop bounds, simplifying conditions, or reducing symbolic variables.
+
+CODE:
+{numbered_code}
+
+ERROR:
+{feedback}
+
+Output ONE specific repair instruction to reduce path explosion."""
     elif is_constant_comparison:
         prompt = f"""CodeQL detected impossible comparisons that are always true or always false.
 YOUR TASK: Look at the specific line mentioned in the feedback. Either:
