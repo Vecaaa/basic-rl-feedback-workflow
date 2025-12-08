@@ -118,6 +118,18 @@ source "$PROJECT_DIR/run_iter2.sh"
 
 
 # ==========================================================
+# Clean up future iterations
+# ==========================================================
+echo "🧹 Cleaning up iterations $START_ITER to $MAX_ITERS ..."
+for i in $(seq "$START_ITER" "$MAX_ITERS"); do
+    iter_dir="$OUTPUT_BASE/iter_${i}"
+    if [ -d "$iter_dir" ]; then
+        echo "   Removing old directory: $iter_dir"
+        rm -rf "$iter_dir"
+    fi
+done
+
+# ==========================================================
 # Main loop (starting from START_ITER)
 # ==========================================================
 overall_start=$(date +%s); last_good_iter=0

@@ -133,7 +133,7 @@ EOF
     # ----- 2. Compilation Processing -> out_compile -----
     if [ -s "$comp_dir/compile_failures.txt" ]; then
       # Capture output first to avoid empty headers
-      comp_out=$(grep -E "^${base}\b" "$comp_dir/compile_failures.txt")
+      comp_out=$(grep -E "^${base}([[:space:]]|$)" "$comp_dir/compile_failures.txt")
       
       if [ -n "$comp_out" ]; then
         echo "### Compilation failures for ${base}.c" >> "$out_compile"
@@ -142,17 +142,46 @@ EOF
 
         local clog="$comp_dir/${base}_compile.log"
         if [ -s "$clog" ]; then
-          echo "----- compiler log excerpt -----" >> "$out_compile"
-          grep -E "error:|warning:" "$clog" | head -n 8 | sed 's/^/    /' >> "$out_compile"
+          {
+            echo "----- compiler log excerpt (primary errors) -----"
+
+            # ✅ 1️⃣ 优先抓标准 C/Clang 错误
+            grep -E "error:|warning:" "$clog" | head -n 20
+
+            # ✅ 2️⃣ 如果一个都没抓到 → 说明是 linker / LLVM / mock / nm 类错误
+            if ! grep -qE "error:|warning:" "$clog"; then
+              echo "[FALLBACK] No explicit error:/warning: found. Dumping last 40 lines:"
+              tail -n 40 "$clog"
+              echo "[HINT][COMPILER] This is likely a linker / LLVM / nm / mock / symbol resolution failure."
+            fi
+          } | sed 's/^/    /' >> "$out_compile"
+
           echo "" >> "$out_compile"
 
-          # 💡 常见错误 1：隐式声明（比如 min_operations）
+          # ✅ ✅ ✅ 额外增强：自动错误类型提示（喂给第二个 LLM）
+          if grep -qi "undefined reference" "$clog"; then
+            echo "[HINT][COMPILER] Undefined reference detected → missing function definition or prototype mismatch." >> "$out_compile"
+            echo "" >> "$out_compile"
+          fi
+
+          if grep -qi "implicit declaration" "$clog"; then
+            echo "[HINT][COMPILER] Implicit function declaration → add prototype before use." >> "$out_compile"
+            echo "" >> "$out_compile"
+          fi
+
+          if grep -qi "multiple definition" "$clog"; then
+            echo "[HINT][COMPILER] Multiple definition → duplicate global or static symbol." >> "$out_compile"
+            echo "" >> "$out_compile"
+          fi
+
+
+          # 💡 常见错误 1：隐式声明
           if grep -q "implicit declaration of function 'min_operations'" "$clog"; then
             echo "[HINT][COMPILER] Implement 'min_operations' or add its prototype *before* main; do not rely on implicit declarations." >> "$out_compile"
             echo "" >> "$out_compile"
           fi
 
-          # 💡 常见错误 2：VLA / 变长数组导致的编译器/静态分析抱怨（辅助 KLEE HINT）
+          # 💡 常见错误 2：VLA 变长数组
           if grep -q "variable length array" "$clog"; then
             echo "[HINT][COMPILER] Replace variable-length arrays like 'int a[n];' with fixed-size arrays (e.g. 'int a[MAX_N];') and check 'n <= MAX_N' before use." >> "$out_compile"
             echo "" >> "$out_compile"
@@ -297,15 +326,6 @@ EOF
       # If simplified non-empty, overwrite
       if [ -s "$tmp_s" ]; then
         mv "$tmp_s" "$feedback_file"
-        
-        # Check if file contains ONLY a header (starts with ###) and nothing else
-        # Count non-header lines (lines that don't start with ###)
-        non_header_lines=$(grep -v '^###' "$feedback_file" | grep -v '^[[:space:]]*$' | wc -l)
-        if [ "$non_header_lines" -eq 0 ]; then
-          # File has only header(s), no actual error content - remove it
-          rm -f "$feedback_file"
-          : > "$feedback_file"  # Create empty file to maintain consistency
-        fi
       else
         rm -f "$tmp_s"
       fi
@@ -433,17 +453,70 @@ run_iteration(){
     cp -a "$prev_final_fb"/feedback_*.txt "$f"/  2>/dev/null || true
     cp -a "$prev_final_fb"/*_codeql.txt "$f"/  2>/dev/null || true
     
+    # --- REPAIR MISSING FEEDBACK ---
+    # Ensure compilation feedback exists for all known failures
+    local prev_comp_dir="$OUTPUT_BASE/iter_$((iter-1))/compiled_output"
+    if [ -s "$prev_comp_dir/compile_failures.txt" ]; then
+        while read -r line; do
+            # Extract code_X from "code_X failed..."
+            local base=$(echo "$line" | awk '{print $1}')
+            if [ -n "$base" ]; then
+                local fb_file="$f/feedback_compile_${base}.txt"
+                
+                # If feedback file is empty or missing, regenerate it
+                if [ ! -s "$fb_file" ]; then
+                    echo "   ⚠️ Regenerating missing compilation feedback for ${base}..."
+                    echo "### Compilation failures for ${base}.c" > "$fb_file"
+                    echo "$line" >> "$fb_file"
+                    echo "" >> "$fb_file"
+                    
+                    # Try to get log excerpt if log exists
+                    local clog="$prev_comp_dir/${base}_compile.log"
+                    if [ -s "$clog" ]; then
+                    {
+                      echo "----- compiler log excerpt -----"
+
+                      # ✅ 1️⃣ 正常抓 error / warning
+                      grep -E "error:|warning:" "$clog" | head -n 20
+
+                      # ✅ 2️⃣ 如果一个 error: / warning: 都没有 → 强制兜底输出最后 30 行
+                      if ! grep -qE "error:|warning:" "$clog"; then
+                        echo "[FALLBACK] No explicit error:/warning: found. Dumping last 30 lines of compiler log:"
+                        tail -n 30 "$clog"
+                        echo "[HINT][COMPILER] This is likely a linker / nm / mock / toolchain failure."
+                      fi
+                    } | sed 's/^/    /' >> "$fb_file"
+
+                    echo "" >> "$fb_file"
+                  fi
+                fi
+            fi
+        done < "$prev_comp_dir/compile_failures.txt"
+    fi
+    
     echo "   ✅ Feedback reused successfully (no redundant testing)"
 
 
     # --- STEP 3: Collect problematic files from separated feedback files ---
-    # Check all three feedback sources to identify files that need repair
+    local prev_comp_dir="$OUTPUT_BASE/iter_$((iter-1))/compiled_output"
+    
     mapfile -t FIX_LIST < <(
-      { grep -l . "$f"/feedback_klee_code_*.txt 2>/dev/null; 
-        grep -l . "$f"/feedback_compile_code_*.txt 2>/dev/null; 
-        grep -l . "$f"/feedback_codeql_code_*.txt 2>/dev/null; } | 
-        sed 's/.*feedback_[^_]*_code_//; s/.txt//' | sort -u
-    )
+    {
+      # 1️⃣ KLEE feedback
+      grep -l . "$f"/feedback_klee_code_*.txt 2>/dev/null
+
+      # 2️⃣ ✅ 真实 compile 失败（权威源）
+      if [ -s "$prev_comp_dir/compile_failures.txt" ]; then
+        sed 's/ failed.*//' "$prev_comp_dir/compile_failures.txt"
+      fi
+
+      # 3️⃣ CodeQL
+      grep -l . "$f"/feedback_codeql_code_*.txt 2>/dev/null
+    } \
+    | sed -E 's/.*code_([0-9]+)(\.txt)?/\1/' \
+    | sort -u
+  )
+
 
     echo "   ℹ️  Found ${#FIX_LIST[@]} problematic files: ${FIX_LIST[*]}"
 
@@ -511,8 +584,12 @@ run_iteration(){
         echo "   ✅ $bn"
         # link with both mocks
         echo "[LLVM-LINK] $bn: $bc  +  $MOCK_SCANF_BC  +  $MOCK_LIBC_BC  →  $bl/${bn}.bc"
-        "$LLVM_LINK" -o "$bl/${bn}.bc" "$bc" "$MOCK_SCANF_BC" "$MOCK_LIBC_BC" 2>>"$co/${bn}_compile.log" || {
-          echo "$bn failed at link(mock) stage" | tee -a "$co/compile_failures.txt"
+        {
+          echo "[LLVM-LINK] $(date)"
+          "$LLVM_LINK" -o "$bl/${bn}.bc" "$bc" "$MOCK_SCANF_BC" "$MOCK_LIBC_BC"
+        } >>"$co/${bn}_compile.log" 2>&1 || {
+          echo "$bn failed at link(mock) stage" >> "$co/compile_failures.txt"
+          echo "   ❌ $bn (llvm-link failure, see ${bn}_compile.log)"
           continue
         }
         # nm 自检（直接打印到终端）

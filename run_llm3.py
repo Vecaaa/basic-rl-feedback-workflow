@@ -107,7 +107,7 @@ model = AutoModelForCausalLM.from_pretrained(
     local_files_only=LOCAL_ONLY,
     dtype=torch.float16 if device == "cuda" else torch.float32,
     device_map="auto"
-).to(device)
+)
 
 # ==========================================================
 # Utils
@@ -213,6 +213,63 @@ def add_line_numbers(code: str) -> str:
     lines = code.splitlines()
     return "\n".join([f"{i+1:3}: {line}" for i, line in enumerate(lines)])
 
+def detect_heap_usage(code: str):
+    """
+    粗略检测代码里是否有“堆内存模型”：
+      - 是否有全局指针声明（形如：int *arr;）
+      - 是否有 malloc / calloc / realloc 调用
+    返回 (has_global_ptr, has_heap_alloc)
+    """
+    # 检测全局指针：匹配行首的 "type *name;"
+    has_global_ptr = bool(
+        re.search(r'^\s*(?:int|char|float|double|long|short|unsigned|struct\s+\w+)\s*\*\s*\w+\s*;',
+                  code, re.MULTILINE)
+    )
+
+    lower = code.lower()
+    has_heap_alloc = any(tok in lower for tok in ["malloc(", "calloc(", "realloc("])
+
+    return has_global_ptr, has_heap_alloc
+
+def validate_memory_model_fix(repair_text: str, original_code: str, must_fix: bool) -> bool:
+    """
+    严格内存模型修复完整性校验（带 must_fix 开关）
+
+    must_fix = True  → 说明本轮是 KLEE symbolic malloc 触发的【强制内存模型修复】
+    must_fix = False → 说明本轮根本不允许出现内存模型修改
+    """
+
+    original_lower = original_code.lower()
+    repair_lower = repair_text.lower()
+
+    # ✅ 如果本轮不需要内存模型修复 → 直接放行
+    if not must_fix:
+        return True
+
+    # ===== 仅在 must_fix=True 时，才强制三件套 =====
+
+    # 1️⃣ 是否真的存在全局指针 / malloc / free
+    has_global_ptr = bool(re.search(r'\bint\s*\*\s*\w+', original_lower))
+    has_malloc = any(tok in original_lower for tok in ["malloc(", "calloc(", "realloc("])
+    has_free = "free(" in original_lower
+
+    # 2️⃣ repair prompt 中是否真的完整处理了三件套
+    replaces_global_ptr = bool(re.search(r'replace\s+"int\s*\*', repair_lower))
+    removes_malloc = bool(re.search(r'remove\s+"malloc', repair_lower))
+    removes_free = bool(re.search(r'remove\s+"free', repair_lower)) or not has_free
+
+    # 3️⃣ 三件套强制约束逻辑
+    if has_global_ptr and not replaces_global_ptr:
+        return False
+
+    if has_malloc and not removes_malloc:
+        return False
+
+    if has_free and not removes_free:
+        return False
+
+    return True
+
 # ==========================================================
 # Task Handlers
 # ==========================================================
@@ -248,174 +305,455 @@ now start to write your code, write code ONLY:
 def task_analyze(idx: int, current_code: str, feedback: str, output_dir: str):
     """
     Iteration 2+ (Step 1): Analyze code + feedback, produce REPAIR PROMPT.
-    NO CODE GENERATION HERE.
+
+    升级版：支持多种错误同时存在（symbolic malloc + OOB + null deref 等），
+    并强制输出两个结构化 section：
+      1) MEMORY MODEL FIX
+      2) BOUNDS / ACCESS FIX
     """
     repair_prompt_path = Path(output_dir) / f"repair_prompt_{idx}.txt"
     
     print(f"🔍 [ANALYZE] code_{idx}.c")
 
     numbered_code = add_line_numbers(current_code)
-    
-    # Check for various KLEE error types
-    is_klee_symbolic_error = "concretized symbolic size" in feedback.lower() or "symbolic malloc" in feedback.lower()
-    is_klee_div_by_zero = "division by zero" in feedback.lower() or "div by zero" in feedback.lower()
-    is_klee_null_deref = "null pointer" in feedback.lower() or "dereference" in feedback.lower() and "null" in feedback.lower()
-    is_klee_out_of_bounds = "out of bound" in feedback.lower() or "out-of-bounds" in feedback.lower()
-    is_klee_path_explosion = "path explosion" in feedback.lower() or "exceeded time/path limits" in feedback.lower() or "halttimer" in feedback.lower()
-    
-    # Check if this is a CodeQL constant-comparison issue
-    is_constant_comparison = "cpp/constant-comparison" in feedback.lower()
+    fb = feedback.lower()
 
+    # -------------------------------
+    # Error detection (非互斥，多种可同时为 True)
+    # -------------------------------
+    is_klee_symbolic_error = (
+        "symbolic malloc" in fb or
+        "concretized symbolic size" in fb or
+        "symbolic-sized malloc" in fb
+    )
+
+    is_klee_out_of_bounds = (
+        "out of bound" in fb or
+        "out-of-bounds" in fb or
+        "null page access" in fb or
+        "memory error" in fb
+    )
+
+    is_klee_null_deref = (
+        ("null pointer" in fb) or
+        ("dereference" in fb and "null" in fb)
+    )
+
+    is_klee_div_by_zero = (
+        "division by zero" in fb or
+        "div by zero" in fb
+    )
+
+    is_klee_path_explosion = (
+        "path explosion" in fb or
+        "halttimer" in fb or
+        "exceeded time" in fb
+    )
+
+    is_constant_comparison = "cpp/constant-comparison" in fb
+
+    # ===============================
+    # GENERIC COMPILER / LOGIC ERROR TYPES (A方案核心)
+    # ===============================
+
+    is_func_arity_error = (
+        "too many arguments" in fb or
+        "too few arguments" in fb
+    )
+
+    is_type_mismatch = (
+        "incompatible types" in fb or
+        "invalid operands" in fb
+    )
+
+    is_implicit_decl = (
+        "implicit declaration" in fb
+    )
+
+    is_missing_return = (
+        "control reaches end of non-void function" in fb
+    )
+
+    is_recursion_logic = (
+        "stack overflow" in fb or
+        "infinite recursion" in fb
+    )
+
+
+    # 是否需要两个大类修复
+    # ===============================
+    # STRICT MEMORY MODEL TRIGGER
+    # ===============================
+
+    # ✅ 使用统一堆检测函数（这是唯一合法的触发来源）
+    has_global_ptr, has_heap_alloc = detect_heap_usage(current_code)
+
+    # ✅ 只有：KLEE 报 symbolic malloc + 代码里真的有指针/堆 才触发内存模型修复
+    needs_memory_fix = is_klee_symbolic_error and (has_global_ptr or has_heap_alloc)
+
+    # ✅ bounds 修复保持不变
+    needs_bounds_fix = is_klee_out_of_bounds or is_klee_null_deref or is_klee_div_by_zero
+
+    needs_signature_fix = is_func_arity_error or is_implicit_decl
+    needs_type_fix = is_type_mismatch
+    
+    # -------------------------------
+    # 错误摘要，喂给模型参考
+    # -------------------------------
+    error_summary_parts = []
     if is_klee_symbolic_error:
-        prompt = f"""You are an KLEE ERROR repair prompt generator.
+        error_summary_parts.append("- SYMBOLIC MALLOC / SYMBOLIC-SIZED ARRAY")
+    if is_klee_out_of_bounds:
+        error_summary_parts.append("- OUT-OF-BOUNDS / INVALID MEMORY ACCESS / NULL PAGE ACCESS")
+    if is_klee_null_deref:
+        error_summary_parts.append("- NULL POINTER DEREFERENCE")
+    if is_klee_div_by_zero:
+        error_summary_parts.append("- DIVISION BY ZERO")
+    if is_klee_path_explosion:
+        error_summary_parts.append("- PATH EXPLOSION / TIMEOUT")
+    if is_constant_comparison:
+        error_summary_parts.append("- CONSTANT COMPARISON (ALWAYS TRUE/FALSE)")
 
-YOUR TASK: Find malloc/calloc/realloc lines in the code. Replace with fixed-size arrays. 
+    if not error_summary_parts:
+        error_summary_parts.append("- UNKNOWN ERROR TYPE")
 
-IMPORTANT:
-1. You MUST identify the exact source line by QUOTING THE FULL LINE OF CODE ITSELF.
-2. Do NOT output any C code block.
-3. Output ONLY ONE single-line repair instruction
-4. Do NOT generate explanations or descriptions.
-5. Check for error of the line number mentioned in ERROR first if mentioned.
+    error_summary = "\n".join(error_summary_parts)
 
-CODE:
+    # -------------------------------
+    # 检测“未知错误类型”（用于 General Fix）
+    # -------------------------------
+    is_known_error = any([
+        is_klee_symbolic_error,
+        is_klee_out_of_bounds,
+        is_klee_null_deref,
+        is_klee_div_by_zero,
+        is_klee_path_explosion,
+        is_constant_comparison,
+        is_func_arity_error,
+        is_type_mismatch,
+        is_implicit_decl,
+        is_missing_return,
+        is_recursion_logic,
+    ])
+    is_unknown_error = not is_known_error
+
+    # ✅ GENERAL 模式：彻底关掉签名修复 / 类型修复通道
+    if is_unknown_error:
+        needs_signature_fix = False
+        needs_type_fix = False
+
+    # -------------------------------
+    # 最终 Prompt（两段式输出）
+    # -------------------------------
+    general_fix_note = ""
+    if is_unknown_error:
+        general_fix_note = """
+[GENERAL FIX MODE]
+
+The error type is UNKNOWN / not covered by the predefined categories.
+
+In this mode you MUST STILL PROPOSE CONCRETE FIXES.
+
+- You MAY:
+* change conditional expressions (e.g. if (...) return ...)
+* change loop bounds / loop conditions
+* change return expressions
+* add missing base cases or early-return guards
+- You MUST NOT:
+* change function signatures
+* change the memory model (no malloc/free/pointer model changes)
+* change input/output format (no scanf/printf format changes)
+* introduce new global state or new arrays
+
+All edits for UNKNOWN errors MUST be placed in the:
+BOUNDS / ACCESS FIX section,
+treating it as a GENERAL FIX section for algorithm / logic corrections.
+
+ABSOLUTE RULE (GENERAL MODE):
+- You MUST output:
+
+  FUNCTION SIGNATURE FIX:
+  (none)
+
+  TYPE FIX:
+  (none)
+
+- Any attempt to modify function signatures or types in GENERAL MODE makes the output INVALID.
+"""
+    heap_free_note = ""
+    if not (has_global_ptr or has_heap_alloc):
+        heap_free_note = """
+[HEAP-FREE PROGRAM RULE]
+
+The CURRENT CODE does NOT contain:
+- Any global pointer (e.g., "int *arr;")
+- Any malloc / calloc / realloc
+
+Therefore:
+
+- You MUST output exactly:
+
+  MEMORY MODEL FIX:
+  (none)
+
+- You are STRICTLY FORBIDDEN to:
+  * change scalar variables (e.g., "int n;") into arrays,
+  * introduce MAX_N or any numeric buffer constant,
+  * simulate memory using arrays.
+
+Violating this rule makes the output INVALID.
+"""
+    prompt = f"""
+You are a STATIC ANALYSIS REPAIR INSTRUCTION GENERATOR.
+{general_fix_note}
+{heap_free_note}
+
+You must read the CURRENT CODE and TOOL FEEDBACK below, and then output
+a STRICTLY STRUCTURED repair instruction with TWO SECTIONS:
+
+1) MEMORY MODEL FIX (MANDATORY IF ANY malloc/calloc/realloc EXISTS):
+
+THIS SECTION IS A HARD CONTRACT. If violated, the output is INVALID.
+
+You MUST follow ALL rules below:
+
+[TRIGGER RULE]
+If the CURRENT CODE contains ANY of the following:
+- A global pointer declaration (e.g., "int *arr;")
+- OR a call to malloc / calloc / realloc whose size depends on an input or symbolic value,
+
+THEN this section is MANDATORY and CANNOT be "(none)".
+
+You MUST include ALL of the following types of edits:
+
+[A] GLOBAL POINTER ELIMINATION (MANDATORY IF PRESENT)
+- If a global pointer like "int *arr;" exists, you MUST:
+  - Replace "int *arr;" with a fixed-size static array declaration, for example:
+    "static int arr[MAX_N + 2];"
+- You MUST quote the FULL ORIGINAL LINE and the FULL NEW LINE.
+
+[B] DYNAMIC ALLOCATION REMOVAL (MANDATORY IF PRESENT)
+- If any line contains malloc, calloc, or realloc, you MUST:
+  - Use: Remove "<full original malloc line>".
+- You MUST quote the FULL ORIGINAL LINE.
+
+[C] FREE REMOVAL (MANDATORY IF PRESENT)
+- If the corresponding free() exists, you MUST:
+  - Use: Remove "<full original free(...) line>".
+- You MUST quote the FULL ORIGINAL LINE.
+
+[FORBIDDEN ACTIONS]
+- You MUST NOT replace a malloc assignment with a local array declaration inside a function.
+  (For example, replacing
+     "arr = malloc(...);"
+   with
+     "int arr[MAX_N];"
+   inside the same function is STRICTLY FORBIDDEN.)
+- You MUST NOT leave any global pointer that still refers to the removed dynamic memory.
+- You MUST NOT keep free() if dynamic allocation is removed.
+
+[OUTPUT FORMAT RULES]
+- Every edit MUST be one of the following exact forms:
+  - Replace "<full original line>" with "<full new line>".
+  - Remove "<full original line>".
+- You MUST NOT mention line numbers.
+- You MUST NOT use vague phrases like:
+  "fix memory", "change allocation", "handle malloc", "convert to static".
+
+
+2) BOUNDS / ACCESS FIX:
+   - This section is ONLY for fixes to array indices, loop bounds, pointer dereferences,
+     division by zero checks, and other access/guard logic.
+   - If the error summary includes OUT-OF-BOUNDS / NULL PAGE ACCESS / DIVISION BY ZERO,
+     you MUST provide at least ONE concrete edit in this section.
+   - Each edit MUST be of one of the following forms:
+       * Replace "<full original line>" with "<full new line>".
+       * Insert "<new guard line>" before "<full original line>".
+       * Remove "<full original line>" (ONLY if safe).
+   - QUOTE the FULL ORIGINAL LINE exactly as it appears in the code.
+   - Do NOT mention line numbers.
+   - Do NOT use vague phrases like "add bounds checks" or "add appropriate checks"
+     without specifying exactly where and what.
+
+If a section is truly not needed (no relevant errors), you MUST explicitly write:
+   MEMORY MODEL FIX:
+   (none)
+
+or
+   BOUNDS / ACCESS FIX:
+   (none)
+
+3) FUNCTION SIGNATURE FIX (MANDATORY IF ARITY OR IMPLICIT DECL ERROR EXISTS):
+   - This section is ONLY for fixing:
+     * too many arguments to function
+     * too few arguments to function
+     * implicit declaration of function
+   - You may ONLY:
+     * Replace a function definition line
+     * OR replace a function call argument list
+   - You MUST NOT:
+     * change function body logic
+     * modify loops
+     * modify conditionals
+     * modify return expressions
+
+4) TYPE FIX (MANDATORY IF TYPE MISMATCH EXISTS):
+   - This section is ONLY for:
+     * incompatible types
+     * invalid operands
+   - You may ONLY:
+     * change variable types
+     * add explicit casts
+   - You MUST NOT:
+     * change control flow
+     * change memory model
+
+ERROR SUMMARY:
+{error_summary}
+
+CURRENT CODE (with line numbers for your reference only):
 {numbered_code}
 
-ERROR:
+TOOL FEEDBACK:
 {feedback}
 
-Output ONE specific repair instruction referencing the line number from the feedback."""
-    elif is_klee_div_by_zero:
-        prompt = f"""You are a KLEE division-by-zero error repair prompt generator.
+NOW OUTPUT EXACTLY THE FOLLOWING FORMAT:
 
-YOUR TASK: Find division operations in the code where the divisor could be zero. Add a check.
+MEMORY MODEL FIX:
+<one or more concrete edits as specified above, OR "(none)">
 
-IMPORTANT:
-1. You MUST identify the exact source line by QUOTING THE FULL LINE OF CODE ITSELF.
-2. Do NOT output any C code block.
-3. Output ONLY ONE single-line repair instruction
-4. Do NOT generate explanations or descriptions.
-5. Check for error of the line number mentioned in ERROR first if mentioned.
+BOUNDS / ACCESS FIX:
+<one or more concrete edits as specified above, OR "(none)">
 
-CODE:
-{numbered_code}
+FUNCTION SIGNATURE FIX:
+<one or more concrete edits, OR "(none)">
 
-ERROR:
-{feedback}
+TYPE FIX:
+<one or more concrete edits, OR "(none)">
+"""
 
-Output ONE specific repair instruction referencing the line number from the feedback."""
-    elif is_klee_null_deref:
-        prompt = f"""You are a KLEE null pointer dereference repair prompt generator.
-
-YOUR TASK: Find pointer dereferences where the pointer could be NULL. Add a null check.
-
-IMPORTANT:
-1. You MUST identify the exact source line by QUOTING THE FULL LINE OF CODE ITSELF.
-2. Do NOT output any C code block.
-3. Output ONLY ONE single-line repair instruction
-4. Do NOT generate explanations or descriptions.
-5. Check for error of the line number mentioned in ERROR first if mentioned.
-
-CODE:
-{numbered_code}
-
-ERROR:
-{feedback}
-
-Output ONE specific repair instruction referencing the line number from the feedback."""
-    elif is_klee_out_of_bounds:
-        prompt = f"""You are a KLEE out-of-bounds array access repair prompt generator.
-
-YOUR TASK: Find array/buffer accesses where the index could be out of bounds. Add bounds checking.
-
-IMPORTANT:
-1. You MUST identify the exact source line by QUOTING THE FULL LINE OF CODE ITSELF.
-2. Do NOT output any C code block.
-3. Output ONLY ONE single-line repair instruction
-4. Do NOT generate explanations or descriptions.
-5. Check for error of the line number mentioned in ERROR first if mentioned.
-
-CODE:
-{numbered_code}
-
-ERROR:
-{feedback}
-
-Output ONE specific repair instruction referencing the line number from the feedback."""
-    elif is_klee_path_explosion:
-        prompt = f"""You are a KLEE path explosion/timeout repair prompt generator.
-
-YOUR TASK: Identify complex control flow, unbounded loops, or excessive symbolic inputs causing path explosion.
-
-IMPORTANT:
-1. You MUST identify problematic loops or control flow by QUOTING THE RELEVANT CODE.
-2. Do NOT output any C code block.
-3. Output ONLY ONE single-line repair instruction
-4. Do NOT generate explanations or descriptions.
-5. Suggest adding loop bounds, simplifying conditions, or reducing symbolic variables.
-
-CODE:
-{numbered_code}
-
-ERROR:
-{feedback}
-
-Output ONE specific repair instruction to reduce path explosion."""
-    elif is_constant_comparison:
-        prompt = f"""CodeQL detected impossible comparisons that are always true or always false.
-YOUR TASK: Look at the specific line mentioned in the feedback. Either:
-1. Remove the impossible check if overflow detection isn't needed
-2. Fix the overflow detection logic (check before overflow happens, not after)
-
-IMPORTANT:
-1. You MUST identify the exact source line by QUOTING THE FULL LINE OF CODE ITSELF.
-2. Do NOT output any C code block.
-3. Output ONLY ONE single-line repair instruction
-4. Do NOT generate explanations or descriptions.
-5. Check for error of the line number mentioned in ERROR first if mentioned.
-
-CODE (with line numbers):
-{numbered_code}
-
-CODEQL FEEDBACK:
-{feedback}
-
-Output ONE specific repair instruction referencing the line number from the feedback, DO NOT output any code."""
-    else:
-        prompt = f"""You are a C code compiler expert. Analyze the code and feedback below.
-
-Generate ONLY a single, precise, and actionable line of repair instruction. Do NOT output any code.
-Reference specific line numbers from the provided code AND quote the code content.
-
-IMPORTANT:
-1. You MUST identify the exact source line by QUOTING THE FULL LINE OF CODE ITSELF.
-2. Do NOT output any C code block.
-3. Output ONLY ONE single-line repair instruction
-4. Do NOT generate explanations or descriptions.
-5. Check for error of the line number mentioned in ERROR first if mentioned.
-
-CURRENT CODE (with line numbers):
-{numbered_code}
-
-COMPILER FEEDBACK:
-{feedback}
-
-Repair Instruction:"""
     analysis = run_model_prompt(prompt)
-    
-    # Remove "Explanation:" section if it exists
+
+    # ============================================
+    # PATCH: GENERAL 模式下自动修正 / 清空错放的区块
+    # ============================================
+    if is_unknown_error:
+        # 1) 强制 FUNCTION SIGNATURE FIX 变成 (none)，并把其中内容挪到 BOUNDS / ACCESS FIX（如果那边是空）
+        m_fs = re.search(
+            r"FUNCTION SIGNATURE FIX:(.*?)(TYPE FIX:)",
+            analysis,
+            re.S | re.I
+        )
+        if m_fs:
+            fs_body = m_fs.group(1).strip()
+            # 如果 body 不是空、也不是显式 (none)，说明模型乱写了
+            if fs_body and "(none)" not in fs_body.lower() and "<none>" not in fs_body.lower():
+                print("⚠️ GENERAL MODE: Misplaced FUNCTION SIGNATURE FIX content → reclassify to BOUNDS / ACCESS FIX")
+                # 先把 FUNCTION SIGNATURE FIX 块替换成标准 (none)
+                analysis = re.sub(
+                    r"FUNCTION SIGNATURE FIX:.*?TYPE FIX:",
+                    "FUNCTION SIGNATURE FIX:\n(none)\n\nTYPE FIX:",
+                    analysis,
+                    flags=re.S | re.I
+                )
+                # 如果 BOUNDS / ACCESS FIX 目前是 (none)，用 fs_body 填进去
+                analysis = re.sub(
+                    r"BOUNDS / ACCESS FIX:\s*\(none\)",
+                    "BOUNDS / ACCESS FIX:\n" + fs_body,
+                    analysis,
+                    flags=re.I
+                )
+
+        # 2) TYPE FIX 在 GENERAL 模式下一律强制为 (none)（不搬运，直接丢掉）
+        m_ty = re.search(
+            r"TYPE FIX:(.*)$",
+            analysis,
+            re.S | re.I
+        )
+        if m_ty:
+            ty_body = m_ty.group(1).strip()
+            if ty_body and "(none)" not in ty_body.lower() and "<none>" not in ty_body.lower():
+                print("⚠️ GENERAL MODE: Discarding TYPE FIX content (must be (none) in GENERAL mode)")
+                analysis = re.sub(
+                    r"TYPE FIX:.*$",
+                    "TYPE FIX:\n(none)",
+                    analysis,
+                    flags=re.S | re.I
+                )
+    # ===============================
+    # FORBID HALLUCINATED CONSTANTS (ONLY IN MEMORY MODEL FIX)
+    # ===============================
+
+    mm = re.search(
+        r"MEMORY MODEL FIX:(.*?)(BOUNDS / ACCESS FIX:)",
+        analysis,
+        re.S | re.I
+    )
+
+    if mm:
+        mm_block = mm.group(1)
+
+        # ❌ 只禁止：在 MEMORY 模型段里出现硬编码数组大小
+        if re.search(r"\[\s*\d+\s*\]", mm_block):
+            print("❌ INVALID: Hard-coded array size inside MEMORY MODEL FIX")
+            print(mm_block)
+            analysis = run_model_prompt(prompt)
+
+    # -------------------------------
+    # 简单的安全网：保证两个 section 都出现
+    # -------------------------------
+    if "MEMORY MODEL FIX:" not in analysis:
+        print("⚠️ Missing 'MEMORY MODEL FIX:' section, regenerating repair prompt...")
+        analysis = run_model_prompt(prompt)
+
+    if "BOUNDS / ACCESS FIX:" not in analysis:
+        print("⚠️ Missing 'BOUNDS / ACCESS FIX:' section, regenerating repair prompt...")
+        analysis = run_model_prompt(prompt)
+
+    if not needs_signature_fix and "FUNCTION SIGNATURE FIX:" in analysis and "(none)" not in analysis:
+        print("⚠️ Spurious FUNCTION SIGNATURE FIX detected (will be cleaned / reclassified by PATCH).")
+
+    if not needs_type_fix and "TYPE FIX:" in analysis and "(none)" not in analysis:
+        print("⚠️ Spurious TYPE FIX detected (will be cleaned by PATCH).")
+
+    # 禁掉“add bounds checks”这类废话
+    forbidden = [
+        "add bounds check",
+        "add bounds checks",
+        "fix bounds",
+        "handle bounds",
+        "add appropriate checks"
+    ]
+    if any(f in analysis.lower() for f in forbidden):
+        print("⚠️ Forbidden vague phrase detected, regenerating repair prompt...")
+        analysis = run_model_prompt(prompt)
+
+    # 去掉 Explanation 之类多余东西
     lines = analysis.strip().split('\n')
     cleaned_lines = []
     for line in lines:
-        # Stop at "Explanation:" (case-insensitive)
-        if line.strip().lower().startswith('explanation:'):
+        if line.strip().lower().startswith('explanation'):
             break
         cleaned_lines.append(line)
-    
-    analysis = '\n'.join(cleaned_lines).strip()
-    
+
+    analysis = "\n".join(cleaned_lines).strip()
     repair_prompt_path.write_text(analysis)
-    print(f"   -> Saved repair prompt to {repair_prompt_path.name}")
+
+    if re.search(r'^\s*\d+\s*:', analysis, re.MULTILINE):
+        print("⚠️ Detected line-number style edits (e.g. '1: ...'). Regenerating repair prompt...")
+        analysis = run_model_prompt(prompt)
+
+        # 再做一遍 Explanation 截断
+        lines = analysis.strip().split('\n')
+        cleaned_lines = []
+        for line in lines:
+            if line.strip().lower().startswith('explanation'):
+                break
+            cleaned_lines.append(line)
+        analysis = "\n".join(cleaned_lines).strip()
+    repair_prompt_path.write_text(analysis)
+    print(f"   -> Saved MULTI-SECTION repair prompt to {repair_prompt_path.name}")
+
 
 
 def task_repair(idx: int, current_code: str, repair_instructions: str, output_dir: str):
@@ -431,6 +769,64 @@ def task_repair(idx: int, current_code: str, repair_instructions: str, output_di
     if "NO_REPAIR_NEEDED" in repair_instructions:
         print(f"   🟢 No repair needed for code_{idx}.c (Analyzer decision)")
         code_path.write_text(current_code)
+        return
+
+    # ===============================
+    # FUNCTION SIGNATURE FIX SAFETY LOCK
+    # ===============================
+    if "FUNCTION SIGNATURE FIX:" in repair_instructions:
+        block = repair_instructions.split("FUNCTION SIGNATURE FIX:")[1].strip()
+
+        # ✅ ✅ ✅ 关键豁免：如果是 (none)，直接跳过整个校验
+        if block.lower().startswith("(none)") or block.lower().startswith("<none>"):
+            pass
+        else:
+            # ❌ 禁止一切控制流 & 逻辑修改
+            forbidden_logic_tokens = [
+                " if ", " for ", " while ", " return ",
+                " printf", " scanf", " sscanf",
+                "=", "{", "}"
+            ]
+
+            if any(tok in block for tok in forbidden_logic_tokens):
+                print("❌ INVALID FUNCTION SIGNATURE FIX: Attempted to modify logic/control flow")
+                print(block)
+                return
+
+            # ✅ 必须真的包含函数签名关键字
+            if not any(k in block for k in ["int", "void", "char"]):
+                print("❌ INVALID FUNCTION SIGNATURE FIX: No valid function signature change detected")
+                print(block)
+                return
+
+
+    # ===============================
+    # TYPE FIX SAFETY LOCK
+    # ===============================
+    if "TYPE FIX:" in repair_instructions:
+        forbidden_control_tokens = [" if ", " for ", " while ", " malloc", " free"]
+
+        block = repair_instructions.split("TYPE FIX:")[1]
+        if any(tok in block for tok in forbidden_control_tokens):
+            print("❌ INVALID TYPE FIX: Attempted to modify control flow or memory model")
+            print(block)
+            return
+
+
+    # ===============================
+    # MEMORY MODEL FIX SAFETY LOCK（三件套）
+    # ===============================
+    has_global_ptr, has_heap_alloc = detect_heap_usage(current_code)
+    needs_memory_fix = (
+        "symbolic malloc" in repair_instructions.lower()
+        and (has_global_ptr or has_heap_alloc)
+    )
+
+    if not validate_memory_model_fix(repair_instructions, current_code, needs_memory_fix):
+        print("❌ INVALID MEMORY MODEL FIX: global pointer / malloc / free 未被完整处理")
+        print("❌ 当前 repair prompt 被拒绝，不进入修复阶段")
+        print("❌ Repair Prompt 内容如下：")
+        print(repair_instructions)
         return
 
     # Load original problem description to preserve functionality
@@ -520,7 +916,37 @@ FIXED CODE:
     
     # Check for no-op
     if re.sub(r"\s+", "", current_code) == re.sub(r"\s+", "", fixed):
-        print(f"   ⚠️ No changes detected for code_{idx}.c")
+        print(f"   ⚠️ No changes detected for code_{idx}.c — triggering FORCED REPAIR RETRY")
+
+        retry_prompt = f"""You previously FAILED to apply the requested repair.
+
+    Your last output made NO EFFECTIVE CHANGE to the code.
+
+    You MUST now:
+    - Apply the repair EXACTLY as specified.
+    - Output ONLY the full corrected C code.
+    - Do NOT include any explanation or markdown.
+    - Do NOT repeat the original code without modifications.
+
+    CURRENT CODE:
+    {current_code}
+
+    REPAIR INSTRUCTIONS:
+    {repair_instructions}
+
+    OUTPUT ONLY VALID C CODE:
+    """
+
+        raw_retry = run_model_prompt(retry_prompt, max_tokens=1024)
+        raw_path.write_text(raw_retry)
+
+        fixed_retry = extract_c_code_from_text(raw_retry, fallback="")
+        if fixed_retry.strip():
+            fixed = fixed_retry
+            print("   ✅ Forced retry produced a new version.")
+        else:
+            print("   ❌ Forced retry also failed. Keeping original.")
+    
     else:
         # Show line count change
         orig_lines = len(current_code.splitlines())
@@ -588,9 +1014,9 @@ def main():
     for idx in target_indices:
         if TASK == "generate":
             # Directory mode generate (if prompts_dir was set)
-             p_file = Path(prompts_dir) / f"prompt_{idx}.txt"
-             if p_file.exists():
-                 task_generate(idx, p_file.read_text(), output_dir)
+            p_file = Path(prompts_dir) / f"prompt_{idx}.txt"
+            if p_file.exists():
+                task_generate(idx, p_file.read_text(), output_dir)
         
         elif TASK == "analyze":
             # Need current code and feedback

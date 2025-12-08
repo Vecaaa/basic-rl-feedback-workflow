@@ -1,0 +1,12 @@
+
+--- UNIQUE STRATEGY ---
+At line 30, add a bounds check for the malloc call. 
+
+--- UNIQUE STRATEGY ---
+Quote: "At line 18, add a check for division by zero before performing the division." 
+
+--- UNIQUE STRATEGY ---
+Replace line 30 with "int arr[MAX_N + 2];" and add a check for array bounds on line 59. 
+
+--- UNIQUE STRATEGY ---
+At line 17, add a check for n being zero before performing the division. (n != 0) before sum += (n % b) * pow(10, i); 
