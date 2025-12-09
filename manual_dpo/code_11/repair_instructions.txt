@@ -1,0 +1,12 @@
+MEMORY MODEL FIX:
+(none)
+
+BOUNDS / ACCESS FIX:
+(none)
+
+FUNCTION SIGNATURE FIX:
+(none)
+
+TYPE FIX:
+Replace "#include <math.h>" with "#include <math.h>\n#define M_PI 3.141592653589793"
+

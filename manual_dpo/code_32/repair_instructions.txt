@@ -1,0 +1,13 @@
+MEMORY MODEL FIX:
+(none)
+
+BOUNDS / ACCESS FIX:
+(none)
+
+FUNCTION SIGNATURE FIX:
+Replace "void printPaths(struct Node* root, int path[], int pathLen) {" with "void collectPaths(struct Node* root, int path[], int pathLen) {"
+Replace "void printPaths(struct Node* root) {" with "void printPaths(struct Node* root) { int path[1000]; collectPaths(root, path, 0); }"
+
+TYPE FIX:
+(none)
+

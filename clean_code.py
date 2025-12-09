@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-import sys, re
+import sys
+import re
 
 src = sys.argv[1]
 dst = sys.argv[2]
@@ -16,7 +17,7 @@ text = re.sub(r'```[a-zA-Z0-9]*\n?', '', text)
 text = text.replace("```", "")
 
 # ============================================================
-# 2. Remove common LLM response patterns
+# 2. Remove common LLM response patterns / explanations
 # ============================================================
 # Remove "You are an AI..." preambles
 text = re.sub(r'You are an (AI|expert)[^\n]*\n', '', text, flags=re.IGNORECASE)
@@ -27,7 +28,17 @@ text = re.sub(r'(Instruction|Task|Problem|Question):\s*', '', text, flags=re.IGN
 # Remove "Here is", "Here's", "The code is" type phrases
 text = re.sub(r'(Here is|Here\'s|The code is|Below is)[^\n]*:\s*', '', text, flags=re.IGNORECASE)
 
-# Remove XML-style tags
+# Remove obvious English explanation paragraphs that often wrap code
+explanation_patterns = [
+    r'The above code[\s\S]*?(?=#include|int\s+main\b|struct\s+\w+\s*{)',
+    r'Please note[\s\S]*?(?=#include|int\s+main\b|struct\s+\w+\s*{)',
+    r'Now,\s*write the code[\s\S]*?(?=#include|int\s+main\b|struct\s+\w+\s*{)',
+    r'If you are not familiar with[\s\S]*?(?=#include|int\s+main\b|struct\s+\w+\s*{)',
+]
+for pat in explanation_patterns:
+    text = re.sub(pat, '', text, flags=re.IGNORECASE)
+
+# Remove XML-style tags / meta blocks
 block_patterns = [
     r'<ORIGINAL_PROMPT>[\s\S]*?</ORIGINAL_PROMPT>',
     r'<CURRENT_CODE>[\s\S]*?</CURRENT_CODE>',
@@ -44,6 +55,16 @@ for pat in block_patterns:
 # Remove "now start to write" type phrases
 text = re.sub(r'now start to write[^\n]*\n', '', text, flags=re.IGNORECASE)
 text = re.sub(r'write code ONLY[^\n]*\n', '', text, flags=re.IGNORECASE)
+
+# Remove obvious helper markers
+text = re.sub(r'\[\[HELPER\]\]', '', text, flags=re.IGNORECASE)
+
+# Trim at explicit LLM markup tokens like END_CODE / SOLUTION, keeping only the first program
+for marker in ["END_CODE", "SOLUTION"]:
+    idx = text.upper().find(marker)
+    if idx != -1:
+        text = text[:idx]
+        break
 
 # Remove non-ASCII characters
 text = re.sub(r'[^\x00-\x7F]+', ' ', text)
@@ -66,53 +87,34 @@ if not inc_match:
         open(dst, "w").write("#include <stdio.h>\nint main(void){return 0;}\n")
         sys.exit(0)
 else:
+    # Keep from the first true #include onwards
     text = text[inc_match.start():]
+
+    # Heuristic: if there is a SECOND #include after we've already seen
+    # some non-include code, treat everything from that point on as a
+    # duplicated program and drop it. This matches typical LLM patterns:
+    #   code + explanation + [[SOLUTION]] + repeated full program.
+    lines = text.splitlines()
+    i = 0
+    # Skip the initial include block at the very top
+    while i < len(lines) and lines[i].lstrip().startswith("#include"):
+        i += 1
+    # Search for a later include that likely starts a duplicated TU
+    for j in range(i + 1, len(lines)):
+        if lines[j].lstrip().startswith("#include"):
+            lines = lines[:j]
+            break
+    text = "\n".join(lines)
 
 # Find last closing brace
 last_brace = text.rfind('}')
 if last_brace != -1:
     text = text[:last_brace + 1]
 else:
-    # No closing brace found - this is problematic
-    print(f"WARNING: No closing brace found in {src}", file=sys.stderr)
+    # No closing brace found - this is problematic; append minimal main
+    text = text.strip() + "\n\nint main(void){return 0;}\n"
 
-# ============================================================
-# 4. Clean up the extracted code
-# ============================================================
-# Remove any remaining explanatory text after the code
-# (lines that don't look like C code)
-lines = text.split('\n')
-cleaned_lines = []
-in_code = False
-for line in lines:
-    stripped = line.strip()
-    
-    # Start of code
-    if stripped.startswith('#include') or stripped.startswith('//') or stripped.startswith('/*'):
-        in_code = True
-    
-    # Skip lines that look like explanations (only if we haven't started code yet)
-    if not in_code and stripped and not any(c in stripped for c in ['#', '{', '}', '(', ')', ';']):
-        continue
-    
-    cleaned_lines.append(line)
+# Final trim: strip leading/trailing blank lines
+text = text.strip() + "\n"
 
-text = '\n'.join(cleaned_lines).strip() + '\n'
-
-# ============================================================
-# 5. Final validation and fallback
-# ============================================================
-if "int main" not in text and "void main" not in text:
-    print(f"WARNING: No main function found in {src}, adding stub main", file=sys.stderr)
-    text += "\nint main(void){return 0;}\n"
-
-# Ensure at least one include
-if "#include" not in text:
-    text = "#include <stdio.h>\n" + text
-
-# Write result
-open(dst, "w").write(text)
-
-# Log statistics
-final_length = len(text)
-print(f"Cleaned {src}: {original_length} -> {final_length} bytes", file=sys.stderr)
+open(dst, "w", encoding="utf-8").write(text)

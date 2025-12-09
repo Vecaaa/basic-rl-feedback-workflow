@@ -316,12 +316,38 @@ def classify_error_and_strategy(feedback_text: str) -> tuple[str, str]:
             "VOID_ASSIGN_FIX",
             """- The compiler reports: assigning to a pointer from incompatible type 'void'.
 - This usually means a function with return type 'void' is being used on the right-hand side of an assignment.
+- In this error mode you MUST treat the function (e.g. mirror) as a pure side-effect function that mutates its argument in-place.
+
+STRICT ACTIONS YOU MUST TAKE:
+- For EVERY line that matches the pattern:
+    <left_expression> = <void_function>(...);
+  you MUST rewrite it to:
+    <void_function>(...);
+- Example:
+    ORIGINAL:   node->right = mirror(node->left);
+    REPLACE:    mirror(node->left);
+- You MUST NOT:
+  * introduce new malloc / free for this fix,
+  * change the function return type to a pointer just to satisfy the assignment,
+  * delete the function or its logic.
+
+You are allowed to rewrite the entire body of the void function (e.g. mirror)
+as long as it still performs the same high-level operation (e.g. making the tree a mirror)
+and keeps the same signature."""
+        )
+
+    if "called object type" in fb and "is not a function or function pointer" in fb:
+        return (
+            "CALLED_OBJECT_NOT_FUNCTION_FIX",
+            """- The compiler reports: called object type 'T' is not a function or function pointer.
+- This almost always means you declared a VARIABLE with the same name as a FUNCTION, e.g.:
+    int equilibriumIndex = equilibriumIndex(arr, n);
 - Your repair MUST:
-  * Keep the function return type as 'void' OR change it to the correct pointer type, BUT NOT both.
-  * Prefer the safer option: remove the assignment and call the function purely for its side effects, e.g.:
-      ORIGINAL:   node->left = mirror(node->right);
-      REPLACE:    mirror(node->right);
-  * Do NOT remove the function or its logic; only adjust how it is called."""
+  * Rename that variable to something different (e.g., 'idx' or 'result'), OR
+  * Prefer the function name for the function, and avoid reusing it for a variable.
+- You MUST NOT:
+  * Delete the function definition,
+  * Change the function signature unless absolutely necessary."""
         )
 
     if "too many arguments to function call" in fb or "too few arguments to function call" in fb or "too many arguments" in fb:
@@ -333,7 +359,11 @@ def classify_error_and_strategy(feedback_text: str) -> tuple[str, str]:
   * Quote the full original line and the full new line for each change, using the allowed edit forms."""
         )
 
-    if "unknown type name 'please'" in fb or "unknown type name '[[helper]]'" in fb or "unknown type name" in fb and "please note" in fb:
+    if (
+        "unknown type name 'please'" in fb
+        or "unknown type name '[[helper]]'" in fb
+        or ("unknown type name" in fb and "please note" in fb)
+    ):
         return (
             "LLM_NOISE_CLEANUP",
             """- The compiler is treating natural-language text (e.g. 'Please note ...', '[[HELPER]]') as C code.
@@ -341,6 +371,21 @@ def classify_error_and_strategy(feedback_text: str) -> tuple[str, str]:
   * Remove all non-C narrative text blocks that appear after the real program.
   * Keep only ONE valid translation unit (includes, function definitions, main), and delete any duplicated helper code copied after explanations.
   * Use 'Remove "<full original line>"' edits for all purely natural-language lines."""
+        )
+
+    if (
+        "unknown type name 'end_code'" in fb
+        or "unknown type name 'solution'" in fb
+        or ("unknown type name" in fb and "end_code" in fb)
+    ):
+        return (
+            "LLM_MARKUP_CLEANUP",
+            """- The compiler reports unknown type name 'END_CODE' or 'SOLUTION'.
+- These are markup / explanation tokens, not real C identifiers.
+- Your repair MUST:
+  * Remove lines that contain ONLY these markers (e.g. 'END_CODE', 'SOLUTION'), and
+  * Remove any duplicated full program that appears after them, keeping only the first complete translation unit.
+- Do NOT modify the logic of the first valid C program; focus solely on deleting markup and duplicates."""
         )
 
     if "use of undeclared identifier 'm_pi'" in fb or ("use of undeclared identifier" in fb and "m_pi" in fb):
@@ -351,6 +396,50 @@ def classify_error_and_strategy(feedback_text: str) -> tuple[str, str]:
   * Add a constant definition, e.g. '#define M_PI 3.141592653589793', OR
   * Replace 'M_PI' with an explicit numeric literal or 'acos(-1)'.
 - You MUST NOT change the printed semantics (still print degrees or radians as requested)."""
+        )
+
+    if "implicit declaration of function" in fb:
+        return (
+            "IMPLICIT_DECL_FIX",
+            """- The compiler reports an implicit declaration of a function.
+- This usually means you are calling a function before it is declared or defined.
+- Your repair MUST:
+  * Either move the full function definition ABOVE its first use, OR
+  * Add a proper prototype declaration before main, EXACTLY matching the definition.
+- You MUST NOT silently change the function name or its parameter list in a way that breaks the original intent."""
+        )
+
+    if "use of undeclared identifier 'bool'" in fb or "use of undeclared identifier 'true'" in fb or "use of undeclared identifier 'false'" in fb:
+        return (
+            "BOOL_FIX",
+            """- The compiler reports 'use of undeclared identifier bool/true/false'.
+- Standard C requires either including <stdbool.h> or using int/0/1 instead.
+- Your repair MUST:
+  * Prefer to add '#include <stdbool.h>' near the top of the file, OR
+  * Consistently replace 'bool' with 'int' and 'true'/'false' with 1/0.
+- You MUST NOT change the control-flow or algorithm other than this type/constant adjustment."""
+        )
+
+    if "array type '" in fb and " is not assignable" in fb:
+        return (
+            "ARRAY_NOT_ASSIGNABLE_FIX",
+            """- The compiler reports 'array type ... is not assignable'.
+- This means you are trying to assign to a fixed-size array variable (e.g., 'int arr[5]; arr = insert(...);').
+- Your repair MUST:
+  * Remove such assignments, and instead:
+      - either change the helper function so it writes into the array passed by pointer and returns the new size, OR
+      - use a separate result array variable that is not declared as a fixed-size C array.
+- You MUST NOT keep any 'arr = ...' where 'arr' is declared as 'T[N]'. Replace them with in-place updates or pointer-based interfaces instead."""
+        )
+
+    if "variable length array declaration cannot have 'static' storage duration" in fb:
+        return (
+            "VLA_STATIC_FIX",
+            """- The compiler reports that a variable length array (VLA) cannot be 'static'.
+- Your repair MUST:
+  * Either remove 'static' from that VLA declaration, OR
+  * Replace the VLA with a fixed-size array using a compile-time bound (e.g. 'int arr[MAX_N];') and guard that 'm + n + 2 <= MAX_N'.
+- You MUST NOT leave any 'static int a[n];' style declarations in the code."""
         )
 
     if "divide by zero" in fb or "div by zero" in fb:
@@ -475,8 +564,6 @@ def task_analyze(idx: int, current_code: str, feedback: str, output_dir: str):
         "exceeded time" in fb
     )
 
-    is_constant_comparison = "cpp/constant-comparison" in fb
-
     # ===============================
     # GENERIC COMPILER / LOGIC ERROR TYPES (A方案核心)
     # ===============================
@@ -536,8 +623,6 @@ def task_analyze(idx: int, current_code: str, feedback: str, output_dir: str):
         error_summary_parts.append("- DIVISION BY ZERO")
     if is_klee_path_explosion:
         error_summary_parts.append("- PATH EXPLOSION / TIMEOUT")
-    if is_constant_comparison:
-        error_summary_parts.append("- CONSTANT COMPARISON (ALWAYS TRUE/FALSE)")
 
     if not error_summary_parts:
         error_summary_parts.append("- UNKNOWN ERROR TYPE")
@@ -553,7 +638,6 @@ def task_analyze(idx: int, current_code: str, feedback: str, output_dir: str):
         is_klee_null_deref,
         is_klee_div_by_zero,
         is_klee_path_explosion,
-        is_constant_comparison,
         is_func_arity_error,
         is_type_mismatch,
         is_implicit_decl,
@@ -571,6 +655,94 @@ def task_analyze(idx: int, current_code: str, feedback: str, output_dir: str):
     # 策略路由：根据 feedback 选择错误类型 + 推荐修复策略
     # -------------------------------
     error_type, strategy_block = classify_error_and_strategy(feedback)
+
+    # 针对特定错误类型，提供更硬的、接近模板化的编辑提示
+    hard_fix_hint = ""
+
+    if error_type == "UNDECLARED_CONST_FIX":
+        hard_fix_hint = (
+            "For every use of 'M_PI' you MUST either:\n"
+            "- add a definition near the top of the file, for example:\n"
+            "    #define M_PI 3.141592653589793\n"
+            "  or\n"
+            "- replace 'M_PI' with 'acos(-1)' inside the existing expression,\n"
+            "while keeping the surrounding formula identical.\n"
+        )
+
+    elif error_type == "IMPLICIT_DECL_FIX":
+        fn_name = "the reported function"
+        m = re.search(r"implicit declaration of function '([^']+)'", feedback)
+        if m:
+            fn_name = m.group(1)
+        hard_fix_hint = (
+            f"The compiler reports an implicit declaration of function '{fn_name}'.\n"
+            "- You MUST ensure '{fn_name}' is declared or defined BEFORE its first use.\n"
+            "- Prefer to move the full definition of '{fn_name}' so it appears before main,\n"
+            "  OR add a prototype declaration matching its definition before main.\n"
+            "- Do NOT silently rename the function or change its parameters.\n"
+        )
+
+    elif error_type == "BOOL_FIX":
+        hard_fix_hint = (
+            "The compiler reports use of undeclared 'bool'/'true'/'false'.\n"
+            "- You MUST either:\n"
+            "  * insert '#include <stdbool.h>' together with the other #include lines, OR\n"
+            "  * replace 'bool' with 'int' and 'true'/'false' with 1/0 consistently in the code.\n"
+            "- Do NOT change the overall control-flow or algorithm when doing this.\n"
+        )
+
+    elif error_type == "ARRAY_NOT_ASSIGNABLE_FIX":
+        hard_fix_hint = (
+            "The compiler reports that an array type is not assignable.\n"
+            "- You MUST remove any assignment where the left-hand side is a fixed-size array variable,\n"
+            "  such as 'int arr[5]; arr = insert(arr, ...);'.\n"
+            "- Prefer to:\n"
+            "  * change the helper function so it takes the array and its size by pointer and updates it in-place,\n"
+            "    returning the new logical size, and\n"
+            "  * replace 'arr = insert(...);' with a call that just updates the array and size without assignment.\n"
+            "- You MUST NOT leave any 'arr = ...;' statements where 'arr' is declared as 'T[N]'.\n"
+        )
+
+    elif error_type == "VLA_STATIC_FIX":
+        hard_fix_hint = (
+            "The compiler reports a variable length array (VLA) cannot be 'static'.\n"
+            "- You MUST either:\n"
+            "  * remove the 'static' keyword from that VLA declaration, OR\n"
+            "  * introduce a compile-time bound (e.g., '#define MAX_N ...') and replace the VLA with\n"
+            "    a fixed-size array 'int a[MAX_N];' plus an explicit guard that the runtime size does not\n"
+            "    exceed MAX_N before using the array.\n"
+            "- You MUST NOT keep any declaration of the form 'static T a[n];' where 'n' is not a compile-time constant.\n"
+        )
+
+    elif error_type == "CALLED_OBJECT_NOT_FUNCTION_FIX":
+        # Try to detect a variable that shadows a function name, e.g.:
+        #   int equilibriumIndex = equilibriumIndex(arr, n);
+        shadow_name = ""
+        m = re.search(r"\bint\s+(\w+)\s*=\s*\1\s*\(", current_code)
+        if m:
+            shadow_name = m.group(1)
+        name_hint = shadow_name or "the variable that shadows the function"
+        hard_fix_hint = (
+            "The error 'called object type ... is not a function' indicates a variable\n"
+            "is using the same name as a function.\n"
+            f"- You MUST rename {name_hint} to a distinct local name (e.g., 'result' or 'idx'),\n"
+            "  while keeping the function name unchanged.\n"
+            "- Do NOT delete the function definition.\n"
+        )
+
+    # 处理函数/主函数重定义：在通用错误类型下也给硬提示
+    if "redefinition of 'main'" in feedback or "redefinition of 'main'" in fb:
+        hard_fix_hint += (
+            "\nThere must be exactly ONE definition of 'main'. You MUST delete any\n"
+            "duplicate main definition and keep only a single, correct main function.\n"
+        )
+    if "redefinition of '" in feedback:
+        # Generic function redefinition hint
+        hard_fix_hint += (
+            "\nThe compiler reports a redefinition of a function. You MUST reduce\n"
+            "the program to a single consistent definition for each function name,\n"
+            "removing or merging duplicate definitions.\n"
+        )
 
     # -------------------------------
     # 最终 Prompt（两段式输出 + 策略指引）
@@ -643,6 +815,9 @@ ERROR_TYPE (policy routing decision):
 
 RECOMMENDED REPAIR STRATEGY (high level actions):
 {strategy_block}
+
+ERROR-SPECIFIC MANDATORY EDITS (if any):
+{hard_fix_hint}
 
 You must read the CURRENT CODE and TOOL FEEDBACK below, and then output
 a STRICTLY STRUCTURED repair instruction with TWO SECTIONS:
@@ -897,6 +1072,22 @@ TYPE FIX:
         break
     
     # Save the final result (valid or not, if attempts exhausted)
+    # 如果连续多次尝试仍然只得到空白 / 分隔线，将其降级为“显式空修复 skeleton”，
+    # 避免把真正的空字符串传给 Repair 阶段。
+    if not analysis.strip() or re.match(r'^[-=_\s]*$', analysis):
+        analysis = """MEMORY MODEL FIX:
+(none)
+
+BOUNDS / ACCESS FIX:
+(none)
+
+FUNCTION SIGNATURE FIX:
+(none)
+
+TYPE FIX:
+(none)
+"""
+
     repair_prompt_path.write_text(analysis)
     print(f"   -> Saved MULTI-SECTION repair prompt to {repair_prompt_path.name}")
 
@@ -917,6 +1108,12 @@ def task_repair(idx: int, current_code: str, repair_instructions: str, output_di
         code_path.write_text(current_code)
         return
 
+    # Detect routed error type (if present) for later self-check logic
+    error_type = ""
+    m_err = re.search(r"ERROR_TYPE\s*\(policy routing decision\)\s*:\s*(\S+)", repair_instructions)
+    if m_err:
+        error_type = m_err.group(1).strip()
+
     # ===============================
     # FUNCTION SIGNATURE FIX SAFETY LOCK
     # ===============================
@@ -927,17 +1124,21 @@ def task_repair(idx: int, current_code: str, repair_instructions: str, output_di
         if block.lower().startswith("(none)") or block.lower().startswith("<none>"):
             pass
         else:
-            # ❌ 禁止一切控制流 & 逻辑修改
-            forbidden_logic_tokens = [
-                " if ", " for ", " while ", " return ",
-                " printf", " scanf", " sscanf",
-                "=", "{", "}"
-            ]
+            # 在特定错误类型下，我们允许对相关函数签名做有限修改
+            allow_signature_edit = error_type in {"FUNC_ARITY_FIX"}
 
-            if any(tok in block for tok in forbidden_logic_tokens):
-                print("❌ INVALID FUNCTION SIGNATURE FIX: Attempted to modify logic/control flow")
-                print(block)
-                return
+            if not allow_signature_edit:
+                # ❌ 通用情况下禁止控制流 & 逻辑修改
+                forbidden_logic_tokens = [
+                    " if ", " for ", " while ", " return ",
+                    " printf", " scanf", " sscanf",
+                    "=", "{", "}"
+                ]
+
+                if any(tok in block for tok in forbidden_logic_tokens):
+                    print("❌ INVALID FUNCTION SIGNATURE FIX: Attempted to modify logic/control flow")
+                    print(block)
+                    return
 
             # ✅ 必须真的包含函数签名关键字
             if not any(k in block for k in ["int", "void", "char"]):

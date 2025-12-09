@@ -6,7 +6,7 @@
 #set -o pipefail
 
 # -------- Tunables --------
-MAX_ITERS=${MAX_ITERS:-20}
+MAX_ITERS=${MAX_ITERS:-5}
 TIMEOUT_KLEE=${TIMEOUT_KLEE:-10s}
 STOP_ON_ZERO_ISSUES=${STOP_ON_ZERO_ISSUES:-1}
 REQUIRE_TOOLS=${REQUIRE_TOOLS:-1}
@@ -16,6 +16,8 @@ KLEE_BIN=${KLEE_BIN:-/scratch/$(whoami)/klee/build/bin/klee}
 VENV_PATH=${VENV_PATH:-/scratch/$(whoami)/klee-venv}
 OUTPUT_BASE=${OUTPUT_BASE:-/scratch/$(whoami)/llm_outputs}
 PROJECT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+START_CODE_ID=${START_CODE_ID:-100}
+END_CODE_ID=${END_CODE_ID:-500}
 
 USER_ID=$(whoami)
 export PATH="$LLVM_PREFIX:$PATH"
@@ -68,9 +70,15 @@ assert_file(){ [ -f "$1" ] || fail "missing file: $1"; }
 # 🧹 Pre-run Cleanup (only when running standalone)
 # ==========================================================
 if [ -z "$SKIP_MAIN_LOOP" ]; then
-  echo "🧹 Cleaning $OUTPUT_BASE ..."
-  rm -rf "$OUTPUT_BASE"
-  mkdir -p "$OUTPUT_BASE"
+  if [ -z "$SKIP_MAIN_LOOP" ]; then
+    echo "🧹 Cleaning old iterations (but KEEP iter_1) in $OUTPUT_BASE ..."
+    mkdir -p "$OUTPUT_BASE"
+
+    # 删掉除了 iter_1 以外的 iter_* 目录
+    if [ -d "$OUTPUT_BASE" ]; then
+      find "$OUTPUT_BASE" -maxdepth 1 -type d -name 'iter_*' ! -name 'iter_1' -exec rm -rf {} +
+    fi
+  fi
 
   # -------- venv & config --------
   [ -d "$VENV_PATH" ] || fail "venv not found: $VENV_PATH"
@@ -368,14 +376,24 @@ run_iteration(){
   echo "Step 1: LLM generate/repair..."
 
   # Load Config for Models
-  MODEL_FIXER="deepseek-ai/deepseek-coder-1.3b-instruct"
+  MODEL_FIXER="$PROJECT_DIR/fixer-dpo-checkpoint"
   MODEL_ANALYZER="mistralai/Mistral-7B-Instruct-v0.3"
 
   if [ "$iter" -eq 1 ]; then
     # ------ First iteration: Generate with Fixer ------
     echo "🤖 Iter 1: Generating with Model A (Fixer): $MODEL_FIXER"
     
-    OUTPUT_DIR="$g" MODEL="$MODEL_FIXER" python "$PROJECT_DIR/run_llm3.py" --task generate \
+    ids=()
+    start=${START_CODE_ID:-1}
+    end=${END_CODE_ID:-$start}
+    for ((id=start; id<=end; id++)); do
+      ids+=("$id")
+    done
+
+    echo "   📌 This run will generate code IDs: ${ids[*]}"
+
+    OUTPUT_DIR="$g" MODEL="$MODEL_FIXER" \
+      python "$PROJECT_DIR/run_llm3.py" --task generate --only "${ids[@]}" \
       || fail "LLM gen failed (iter $iter)"
       
   else

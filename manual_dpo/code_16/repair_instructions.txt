@@ -1,0 +1,13 @@
+MEMORY MODEL FIX:
+(none)
+
+BOUNDS / ACCESS FIX:
+(none)
+
+FUNCTION SIGNATURE FIX:
+(none)
+
+TYPE FIX:
+Replace "node->left = mirror(node->right);" with "mirror(node->right);"
+Replace "node->right = mirror(temp);" with "mirror(temp);"
+

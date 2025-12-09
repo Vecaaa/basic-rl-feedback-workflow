@@ -1,0 +1,14 @@
+MEMORY MODEL FIX:
+(none)
+
+BOUNDS / ACCESS FIX:
+(none)
+
+FUNCTION SIGNATURE FIX:
+(none)
+
+TYPE FIX:
+Replace "int equilibriumIndex = equilibriumIndex(arr, n);" with "int eqIndex = equilibriumIndex(arr, n);"
+Replace "if (equilibriumIndex != -1) {" with "if (eqIndex != -1) {"
+Replace "printf(\"Equilibrium index is %d\", equilibriumIndex);" with "printf(\"Equilibrium index is %d\", eqIndex);"
+

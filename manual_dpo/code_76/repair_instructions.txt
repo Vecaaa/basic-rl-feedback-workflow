@@ -1,0 +1,12 @@
+MEMORY MODEL FIX:
+(none)
+
+BOUNDS / ACCESS FIX:
+(none)
+
+FUNCTION SIGNATURE FIX:
+(none)
+
+TYPE FIX:
+Replace "#include <stdlib.h>" with "#include <stdlib.h>\n#include <stdbool.h>"
+

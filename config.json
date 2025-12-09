@@ -3,7 +3,7 @@
   "HUGGINGFACE_TOKEN": "",
   "max_new_tokens": 1024,
   "num_return_sequences": 1,
-  "subset_size": 20,
+  "subset_size": 50,
   "MODEL_SMALL": "deepseek-ai/deepseek-coder-1.3b-instruct",
   "MODEL_BIG": "codellama/CodeLlama-13b-Instruct-hf"
 }
