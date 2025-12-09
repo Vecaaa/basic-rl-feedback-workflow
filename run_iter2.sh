@@ -307,8 +307,8 @@ EOF
       
       tmp_s="${feedback_file}.simplified"
       awk '
+        # 丢掉纯空行和明显无用的元数据
         /^[[:space:]]*$/ { next }
-        /-----/ { next }
         /assembly\.ll/ { next }
         /Stack:/ { next }
         /State:/ { next }
@@ -316,7 +316,10 @@ EOF
         /\.ktest/ { next }
         /\.err/ && !/KLEE_RULE|Error|Line/ { next }
 
+        tolower($0) ~ /error:|warning:/ { print; next }
+
         {
+          # 保留 KLEE/CodeQL 里的关键行
           if ($0 ~ /Line.*KLEE|Fix:|Memory error|KLEE error|Error|WARNING|Code:/) print
           else if ($0 ~ /^###/) print
           else if ($0 ~ /\[cpp\//) print
@@ -366,7 +369,7 @@ run_iteration(){
 
   # Load Config for Models
   MODEL_FIXER="deepseek-ai/deepseek-coder-1.3b-instruct"
-  MODEL_ANALYZER="mistralai/Mistral-7B-Instruct-v0.2"
+  MODEL_ANALYZER="mistralai/Mistral-7B-Instruct-v0.3"
 
   if [ "$iter" -eq 1 ]; then
     # ------ First iteration: Generate with Fixer ------
