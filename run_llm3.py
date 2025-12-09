@@ -158,51 +158,82 @@ def clean_problem_prompt(p: str) -> str:
     return "\n".join(new).strip()
 
 def extract_c_code_from_text(text: str, fallback: str = "", repair_hint: str = "") -> str:
-    """Extract C code from model output with multiple strategies."""
+    """
+    Extract C code from model output with robust heuristics.
+    Prioritizes full files (includes + main) over snippets.
+    """
     if not text: 
         return fallback.strip()
     
-    # 1) <FIXED_CODE> tags
+    # 1) <FIXED_CODE> tags (Highest priority if explicit)
     m = re.search(r"<FIXED_CODE>(.*?)</FIXED_CODE>", text, re.S | re.I)
     if m and "#include" in m.group(1): 
         return m.group(1).strip()
 
-    # 2) Fenced code blocks (```c ... ```)
+    # 2) Collect all fenced code blocks
     blocks = re.findall(r"```(?:c|C|cpp|C\+\+)?\s*(.*?)```", text, re.S)
-    if blocks:
-        # Try each block from last to first
-        for block in reversed(blocks):
-            cand = block.strip()
-            if "#include" in cand and "{" in cand:
-                return cand
     
     # 2b) Handle case where prompt ended with ```c, so output starts with code and ends with ```
-    # Look for content ending with ```
+    # or just code ending with ```
     m_end = re.search(r"(.*?)```", text, re.S)
     if m_end:
-        cand = m_end.group(1).strip()
-        if "#include" in cand and "{" in cand:
-            return cand
+        blocks.append(m_end.group(1))
 
-    # 3) Find from first #include to last }
-    inc_idx = text.find("#include")
-    if inc_idx != -1:
-        # Find the last closing brace after the include
-        code_section = text[inc_idx:]
-        last_brace = code_section.rfind('}')
-        if last_brace != -1:
-            return code_section[:last_brace + 1].strip()
-        return code_section.strip()
+    # 3) If no blocks, try to find the largest chunk between #include and last }
+    if not blocks:
+        inc_idx = text.find("#include")
+        if inc_idx != -1:
+            code_section = text[inc_idx:]
+            last_brace = code_section.rfind('}')
+            if last_brace != -1:
+                blocks.append(code_section[:last_brace + 1])
+            else:
+                blocks.append(code_section)
 
-    # 4) Look for any function definition
-    func_match = re.search(r'(int|void|char|float|double)\s+\w+\s*\([^)]*\)\s*{', text)
-    if func_match:
-        code_from_func = text[func_match.start():]
-        last_brace = code_from_func.rfind('}')
-        if last_brace != -1:
-            return "#include <stdio.h>\n" + code_from_func[:last_brace + 1].strip()
+    # 4) Score candidates
+    best_code = fallback
+    best_score = -1
 
-    return fallback.strip()
+    for block in blocks:
+        cand = block.strip()
+        if not cand: continue
+
+        score = 0
+        # Heuristics
+        if "#include" in cand: score += 10
+        if "int main" in cand or "void main" in cand: score += 10
+        if "{" in cand and "}" in cand: score += 5
+        
+        # Length heuristic: extremely short blocks are likely snippets
+        if len(cand) < 50: score -= 20
+        
+        # Penalize if it looks like a diff or explanation
+        if cand.startswith("Diff:") or cand.startswith("Here is"): score -= 100
+
+        # Prefer the last block if scores are tied (often the final answer)
+        # But if one block is clearly a full file (score >= 20) and others are snippets, take the full file.
+        
+        if score > best_score:
+            best_score = score
+            best_code = cand
+        elif score == best_score:
+            # Tie-breaker: prefer the one that appears later (likely the final iteration)
+            # or the one that is longer?
+            # Let's stick to "later is better" for ties, assuming the model improves or finalizes.
+            best_code = cand
+
+    # 5) Final fallback: if even the best candidate is garbage (score < 0), try function definition search
+    if best_score < 5:
+        # Try finding a function definition as a last resort
+        func_match = re.search(r'(int|void|char|float|double)\s+\w+\s*\([^)]*\)\s*{', text)
+        if func_match:
+            code_from_func = text[func_match.start():]
+            last_brace = code_from_func.rfind('}')
+            if last_brace != -1:
+                potential = "#include <stdio.h>\n" + code_from_func[:last_brace + 1].strip()
+                return potential
+
+    return best_code.strip()
 
 # ==========================================================
 # Task Handlers
@@ -269,6 +300,100 @@ def validate_memory_model_fix(repair_text: str, original_code: str, must_fix: bo
         return False
 
     return True
+
+
+def classify_error_and_strategy(feedback_text: str) -> tuple[str, str]:
+    """
+    轻量级“策略路由”：
+    根据编译器 / KLEE 文本粗略分类错误类型，并为 LLM 提供一个推荐的修复策略块。
+    这相当于在 error_text → repair_prompt 之间插入一个 policy layer。
+    """
+    fb = feedback_text.lower()
+
+    # 1) 典型 C 编译器错误模式
+    if "assigning to '" in fb and "from incompatible type 'void'" in fb:
+        return (
+            "VOID_ASSIGN_FIX",
+            """- The compiler reports: assigning to a pointer from incompatible type 'void'.
+- This usually means a function with return type 'void' is being used on the right-hand side of an assignment.
+- Your repair MUST:
+  * Keep the function return type as 'void' OR change it to the correct pointer type, BUT NOT both.
+  * Prefer the safer option: remove the assignment and call the function purely for its side effects, e.g.:
+      ORIGINAL:   node->left = mirror(node->right);
+      REPLACE:    mirror(node->right);
+  * Do NOT remove the function or its logic; only adjust how it is called."""
+        )
+
+    if "too many arguments to function call" in fb or "too few arguments to function call" in fb or "too many arguments" in fb:
+        return (
+            "FUNC_ARITY_FIX",
+            """- The compiler reports a mismatch between function declaration and call arity.
+- Your repair MUST:
+  * Either adjust the function declaration parameter list, OR adjust the call sites, but keep the overall algorithm identical.
+  * Quote the full original line and the full new line for each change, using the allowed edit forms."""
+        )
+
+    if "unknown type name 'please'" in fb or "unknown type name '[[helper]]'" in fb or "unknown type name" in fb and "please note" in fb:
+        return (
+            "LLM_NOISE_CLEANUP",
+            """- The compiler is treating natural-language text (e.g. 'Please note ...', '[[HELPER]]') as C code.
+- Your repair MUST:
+  * Remove all non-C narrative text blocks that appear after the real program.
+  * Keep only ONE valid translation unit (includes, function definitions, main), and delete any duplicated helper code copied after explanations.
+  * Use 'Remove "<full original line>"' edits for all purely natural-language lines."""
+        )
+
+    if "use of undeclared identifier 'm_pi'" in fb or ("use of undeclared identifier" in fb and "m_pi" in fb):
+        return (
+            "UNDECLARED_CONST_FIX",
+            """- The compiler reports 'use of undeclared identifier M_PI'.
+- Standard C does not guarantee M_PI; you MUST either:
+  * Add a constant definition, e.g. '#define M_PI 3.141592653589793', OR
+  * Replace 'M_PI' with an explicit numeric literal or 'acos(-1)'.
+- You MUST NOT change the printed semantics (still print degrees or radians as requested)."""
+        )
+
+    if "divide by zero" in fb or "div by zero" in fb:
+        return (
+            "DIV_ZERO_GUARD",
+            """- The tool reports a potential division by zero (e.g. in 'n % b' or 'x / y').
+- Your repair MUST:
+  * Introduce an explicit guard on the divisor BEFORE the division or modulo, e.g.:
+      Insert 'if (b == 0) return ERROR_CODE;' before the line that divides by 'b'.
+  * Or otherwise restrict the input range so the divisor is never zero.
+  * Do NOT silently change the formula; add explicit guards instead."""
+        )
+
+    # 2) KLEE symbolic malloc / OOB 等已有规则：保持与现有逻辑一致
+    if "symbolic malloc" in fb or "concretized symbolic size" in fb or "symbolic-sized malloc" in fb:
+        return (
+            "SYMBOLIC_MALLOC_FIX",
+            """- KLEE reports symbolic-sized malloc / array.
+- Your repair MUST:
+  * Introduce a MAX_N style compile-time bound for the allocation size.
+  * Replace symbolic-sized allocations with fixed-size arrays using that bound.
+  * Add an input range guard so runtime values cannot exceed the bound.
+  * Use only the allowed MEMORY MODEL FIX edit forms."""
+        )
+
+    if "out of bound" in fb or "out-of-bounds" in fb or "null page access" in fb:
+        return (
+            "BOUNDS_FIX",
+            """- The tool reports an out-of-bounds or invalid memory access.
+- Your repair MUST:
+  * Add or tighten index / pointer guards so all array accesses are within valid bounds.
+  * Prefer simple explicit checks such as 'if (0 <= i && i < size)' before the access."""
+        )
+
+    # 3) Fallback：未知错误 → 走 GENERAL FIX 模式
+    return (
+        "GENERAL_FIX",
+        """- The error type is not in the predefined categories.
+- You MUST still propose concrete, local edits:
+  * Adjust conditions, loop bounds, or return expressions.
+  * Add missing base cases or early-return guards.
+- You MUST NOT change function signatures, the memory model, or I/O formats in this mode."""
+    )
 
 # ==========================================================
 # Task Handlers
@@ -443,7 +568,12 @@ def task_analyze(idx: int, current_code: str, feedback: str, output_dir: str):
         needs_type_fix = False
 
     # -------------------------------
-    # 最终 Prompt（两段式输出）
+    # 策略路由：根据 feedback 选择错误类型 + 推荐修复策略
+    # -------------------------------
+    error_type, strategy_block = classify_error_and_strategy(feedback)
+
+    # -------------------------------
+    # 最终 Prompt（两段式输出 + 策略指引）
     # -------------------------------
     general_fix_note = ""
     if is_unknown_error:
@@ -507,6 +637,12 @@ Violating this rule makes the output INVALID.
 You are a STATIC ANALYSIS REPAIR INSTRUCTION GENERATOR.
 {general_fix_note}
 {heap_free_note}
+
+ERROR_TYPE (policy routing decision):
+  {error_type}
+
+RECOMMENDED REPAIR STRATEGY (high level actions):
+{strategy_block}
 
 You must read the CURRENT CODE and TOOL FEEDBACK below, and then output
 a STRICTLY STRUCTURED repair instruction with TWO SECTIONS:
@@ -632,118 +768,111 @@ TYPE FIX:
 <one or more concrete edits, OR "(none)">
 """
 
-    analysis = run_model_prompt(prompt)
+    max_attempts = 3
+    analysis = ""
+    
+    for attempt in range(1, max_attempts + 1):
+        print(f"   🔁 Generating repair prompt (attempt {attempt}/{max_attempts})...")
+        analysis = run_model_prompt(prompt)
 
-    # ============================================
-    # PATCH: GENERAL 模式下自动修正 / 清空错放的区块
-    # ============================================
-    if is_unknown_error:
-        # 1) 强制 FUNCTION SIGNATURE FIX 变成 (none)，并把其中内容挪到 BOUNDS / ACCESS FIX（如果那边是空）
-        m_fs = re.search(
-            r"FUNCTION SIGNATURE FIX:(.*?)(TYPE FIX:)",
+        # ============================================
+        # PATCH: GENERAL 模式下自动修正 / 清空错放的区块
+        # ============================================
+        if is_unknown_error:
+            # 1) 强制 FUNCTION SIGNATURE FIX 变成 (none)，并把其中内容挪到 BOUNDS / ACCESS FIX（如果那边是空）
+            m_fs = re.search(
+                r"FUNCTION SIGNATURE FIX:(.*?)(TYPE FIX:)",
+                analysis,
+                re.S | re.I
+            )
+            if m_fs:
+                fs_body = m_fs.group(1).strip()
+                # 如果 body 不是空、也不是显式 (none)，说明模型乱写了
+                if fs_body and "(none)" not in fs_body.lower() and "<none>" not in fs_body.lower():
+                    print("⚠️ GENERAL MODE: Misplaced FUNCTION SIGNATURE FIX content → reclassify to BOUNDS / ACCESS FIX")
+                    # 先把 FUNCTION SIGNATURE FIX 块替换成标准 (none)
+                    analysis = re.sub(
+                        r"FUNCTION SIGNATURE FIX:.*?TYPE FIX:",
+                        "FUNCTION SIGNATURE FIX:\n(none)\n\nTYPE FIX:",
+                        analysis,
+                        flags=re.S | re.I
+                    )
+                    # 如果 BOUNDS / ACCESS FIX 目前是 (none)，用 fs_body 填进去
+                    analysis = re.sub(
+                        r"BOUNDS / ACCESS FIX:\s*\(none\)",
+                        "BOUNDS / ACCESS FIX:\n" + fs_body,
+                        analysis,
+                        flags=re.I
+                    )
+
+            # 2) TYPE FIX 在 GENERAL 模式下一律强制为 (none)（不搬运，直接丢掉）
+            m_ty = re.search(
+                r"TYPE FIX:(.*)$",
+                analysis,
+                re.S | re.I
+            )
+            if m_ty:
+                ty_body = m_ty.group(1).strip()
+                if ty_body and "(none)" not in ty_body.lower() and "<none>" not in ty_body.lower():
+                    print("⚠️ GENERAL MODE: Discarding TYPE FIX content (must be (none) in GENERAL mode)")
+                    analysis = re.sub(
+                        r"TYPE FIX:.*$",
+                        "TYPE FIX:\n(none)",
+                        analysis,
+                        flags=re.S | re.I
+                    )
+
+        # ============================================
+        # VALIDATION CHECKS (Retry if failed)
+        # ============================================
+        
+        # 1. Check for garbage / separator lines (e.g. "----------------")
+        # Allow some whitespace, but reject if it's mostly dashes/equals/underscores
+        if re.match(r'^[-=_\s]*$', analysis):
+            print("❌ INVALID: Output is just separator lines or whitespace.")
+            continue
+
+        # 2. Check for missing sections
+        if "MEMORY MODEL FIX:" not in analysis:
+            print("❌ INVALID: Missing 'MEMORY MODEL FIX:' section.")
+            continue
+
+        if "BOUNDS / ACCESS FIX:" not in analysis:
+            print("❌ INVALID: Missing 'BOUNDS / ACCESS FIX:' section.")
+            continue
+
+        # 3. Check for hard-coded array sizes in MEMORY MODEL FIX
+        mm = re.search(
+            r"MEMORY MODEL FIX:(.*?)(BOUNDS / ACCESS FIX:)",
             analysis,
             re.S | re.I
         )
-        if m_fs:
-            fs_body = m_fs.group(1).strip()
-            # 如果 body 不是空、也不是显式 (none)，说明模型乱写了
-            if fs_body and "(none)" not in fs_body.lower() and "<none>" not in fs_body.lower():
-                print("⚠️ GENERAL MODE: Misplaced FUNCTION SIGNATURE FIX content → reclassify to BOUNDS / ACCESS FIX")
-                # 先把 FUNCTION SIGNATURE FIX 块替换成标准 (none)
-                analysis = re.sub(
-                    r"FUNCTION SIGNATURE FIX:.*?TYPE FIX:",
-                    "FUNCTION SIGNATURE FIX:\n(none)\n\nTYPE FIX:",
-                    analysis,
-                    flags=re.S | re.I
-                )
-                # 如果 BOUNDS / ACCESS FIX 目前是 (none)，用 fs_body 填进去
-                analysis = re.sub(
-                    r"BOUNDS / ACCESS FIX:\s*\(none\)",
-                    "BOUNDS / ACCESS FIX:\n" + fs_body,
-                    analysis,
-                    flags=re.I
-                )
+        if mm:
+            mm_block = mm.group(1)
+            if re.search(r"\[\s*\d+\s*\]", mm_block):
+                print("❌ INVALID: Hard-coded array size inside MEMORY MODEL FIX")
+                print(mm_block)
+                continue
 
-        # 2) TYPE FIX 在 GENERAL 模式下一律强制为 (none)（不搬运，直接丢掉）
-        m_ty = re.search(
-            r"TYPE FIX:(.*)$",
-            analysis,
-            re.S | re.I
-        )
-        if m_ty:
-            ty_body = m_ty.group(1).strip()
-            if ty_body and "(none)" not in ty_body.lower() and "<none>" not in ty_body.lower():
-                print("⚠️ GENERAL MODE: Discarding TYPE FIX content (must be (none) in GENERAL mode)")
-                analysis = re.sub(
-                    r"TYPE FIX:.*$",
-                    "TYPE FIX:\n(none)",
-                    analysis,
-                    flags=re.S | re.I
-                )
-    # ===============================
-    # FORBID HALLUCINATED CONSTANTS (ONLY IN MEMORY MODEL FIX)
-    # ===============================
+        # 4. Check for forbidden vague phrases
+        forbidden = [
+            "add bounds check",
+            "add bounds checks",
+            "fix bounds",
+            "handle bounds",
+            "add appropriate checks"
+        ]
+        if any(f in analysis.lower() for f in forbidden):
+            print("❌ INVALID: Forbidden vague phrase detected.")
+            continue
 
-    mm = re.search(
-        r"MEMORY MODEL FIX:(.*?)(BOUNDS / ACCESS FIX:)",
-        analysis,
-        re.S | re.I
-    )
+        # 5. Check for line-number style edits
+        if re.search(r'^\s*\d+\s*:', analysis, re.MULTILINE):
+            print("❌ INVALID: Detected line-number style edits (e.g. '1: ...').")
+            continue
 
-    if mm:
-        mm_block = mm.group(1)
-
-        # ❌ 只禁止：在 MEMORY 模型段里出现硬编码数组大小
-        if re.search(r"\[\s*\d+\s*\]", mm_block):
-            print("❌ INVALID: Hard-coded array size inside MEMORY MODEL FIX")
-            print(mm_block)
-            analysis = run_model_prompt(prompt)
-
-    # -------------------------------
-    # 简单的安全网：保证两个 section 都出现
-    # -------------------------------
-    if "MEMORY MODEL FIX:" not in analysis:
-        print("⚠️ Missing 'MEMORY MODEL FIX:' section, regenerating repair prompt...")
-        analysis = run_model_prompt(prompt)
-
-    if "BOUNDS / ACCESS FIX:" not in analysis:
-        print("⚠️ Missing 'BOUNDS / ACCESS FIX:' section, regenerating repair prompt...")
-        analysis = run_model_prompt(prompt)
-
-    if not needs_signature_fix and "FUNCTION SIGNATURE FIX:" in analysis and "(none)" not in analysis:
-        print("⚠️ Spurious FUNCTION SIGNATURE FIX detected (will be cleaned / reclassified by PATCH).")
-
-    if not needs_type_fix and "TYPE FIX:" in analysis and "(none)" not in analysis:
-        print("⚠️ Spurious TYPE FIX detected (will be cleaned by PATCH).")
-
-    # 禁掉“add bounds checks”这类废话
-    forbidden = [
-        "add bounds check",
-        "add bounds checks",
-        "fix bounds",
-        "handle bounds",
-        "add appropriate checks"
-    ]
-    if any(f in analysis.lower() for f in forbidden):
-        print("⚠️ Forbidden vague phrase detected, regenerating repair prompt...")
-        analysis = run_model_prompt(prompt)
-
-    # 去掉 Explanation 之类多余东西
-    lines = analysis.strip().split('\n')
-    cleaned_lines = []
-    for line in lines:
-        if line.strip().lower().startswith('explanation'):
-            break
-        cleaned_lines.append(line)
-
-    analysis = "\n".join(cleaned_lines).strip()
-    repair_prompt_path.write_text(analysis)
-
-    if re.search(r'^\s*\d+\s*:', analysis, re.MULTILINE):
-        print("⚠️ Detected line-number style edits (e.g. '1: ...'). Regenerating repair prompt...")
-        analysis = run_model_prompt(prompt)
-
-        # 再做一遍 Explanation 截断
+        # If we got here, basic structure is valid.
+        # Perform cleanup (remove Explanation, etc.)
         lines = analysis.strip().split('\n')
         cleaned_lines = []
         for line in lines:
@@ -751,6 +880,23 @@ TYPE FIX:
                 break
             cleaned_lines.append(line)
         analysis = "\n".join(cleaned_lines).strip()
+        
+        # Double check line numbers after cleanup (just in case)
+        if re.search(r'^\s*\d+\s*:', analysis, re.MULTILINE):
+             print("❌ INVALID: Detected line-number style edits after cleanup.")
+             continue
+
+        # Warnings (non-fatal)
+        if not needs_signature_fix and "FUNCTION SIGNATURE FIX:" in analysis and "(none)" not in analysis:
+            print("⚠️ Spurious FUNCTION SIGNATURE FIX detected (will be cleaned / reclassified by PATCH).")
+
+        if not needs_type_fix and "TYPE FIX:" in analysis and "(none)" not in analysis:
+            print("⚠️ Spurious TYPE FIX detected (will be cleaned by PATCH).")
+
+        print("   ✅ Valid repair prompt generated.")
+        break
+    
+    # Save the final result (valid or not, if attempts exhausted)
     repair_prompt_path.write_text(analysis)
     print(f"   -> Saved MULTI-SECTION repair prompt to {repair_prompt_path.name}")
 
@@ -847,7 +993,15 @@ def task_repair(idx: int, current_code: str, repair_instructions: str, output_di
     # Enhanced prompt that preserves functionality
     if problem_description:
         numbered_code = add_line_numbers(current_code)
-        prompt = f"""You are fixing a C program. The program MUST solve this problem:
+        prompt = f"""You are a C code repair agent.
+Your task is to fix the following C code based on the provided error description.
+
+RULES:
+1. Output ONLY the FULL FIXED CODE.
+2. Do NOT output any explanation, reasoning, or conversational text.
+3. Do NOT output the original code.
+4. The code must be a COMPLETE, COMPILABLE file (including imports and main).
+5. Do NOT change the algorithm or logic, only fix the specified error.
 
 PROBLEM:
 {problem_description}
@@ -870,16 +1024,24 @@ FIXED CODE:
     else:
         # Fallback if we can't find the original prompt
         numbered_code = add_line_numbers(current_code)
-        prompt = f"""Fix the following C code by applying ONLY the specified repair.
-Do NOT change the algorithm or logic. Only fix the error.
+        prompt = f"""You are a C code repair agent.
+Your task is to fix the following C code based on the provided error description.
+
+RULES:
+1. Output ONLY the FULL FIXED CODE.
+2. Do NOT output any explanation, reasoning, or conversational text.
+3. Do NOT output the original code.
+4. The code must be a COMPLETE, COMPILABLE file (including imports and main).
+5. Do NOT change the algorithm or logic, only fix the specified error.
+
+PROBLEM:
+(No problem description available, fix based on code and error only)
 
 CURRENT CODE (with line numbers):
 {numbered_code}
 
 FIX REQUIRED:
 {repair_instructions}
-
-IMPORTANT: Output the FIXED CODE without line numbers.
 
 FIXED CODE:
 ```c
@@ -947,12 +1109,32 @@ FIXED CODE:
         else:
             print("   ❌ Forced retry also failed. Keeping original.")
     
-    else:
-        # Show line count change
-        orig_lines = len(current_code.splitlines())
-        fixed_lines = len(fixed.splitlines())
-        if abs(orig_lines - fixed_lines) > orig_lines * 0.3:  # >30% change
-            print(f"   ⚠️  WARNING: Significant size change: {orig_lines} → {fixed_lines} lines ({fixed_lines - orig_lines:+d})")
+    # After potential retry, perform structural safety checks
+    orig_lines = len(current_code.splitlines())
+    fixed_lines = len(fixed.splitlines())
+
+    orig_func_names = {name for _, name in original_funcs}
+    fixed_func_names = {name for _, name in fixed_funcs}
+    critical_orig = {n for n in orig_func_names if n != "main"}
+    critical_fixed = {n for n in fixed_func_names if n != "main"}
+
+    # 1) 防止把完整程序简化成只剩 main（如 code_16 情况）
+    if critical_orig and not critical_fixed:
+        print("❌ Destructive repair detected: all non-main functions were removed.")
+        print("   Keeping original code for this file.")
+        code_path.write_text(current_code)
+        return
+
+    # 2) 防止行数变化过大导致“重写成空壳程序”
+    if orig_lines >= 10 and abs(orig_lines - fixed_lines) > orig_lines * 0.5:
+        print(f"❌ Destructive repair detected: line count changed too much ({orig_lines} → {fixed_lines}).")
+        print("   Keeping original code for this file.")
+        code_path.write_text(current_code)
+        return
+
+    # Show line count change as a soft warning
+    if abs(orig_lines - fixed_lines) > orig_lines * 0.3:  # >30% change
+        print(f"   ⚠️  WARNING: Significant size change: {orig_lines} → {fixed_lines} lines ({fixed_lines - orig_lines:+d})")
     
     code_path.write_text(fixed)
 
@@ -1041,6 +1223,12 @@ def main():
             
             if not fb.strip():
                 print(f"⚠️ No feedback for code_{idx}.c, skipping analysis"); continue
+
+            # If feedback is too short after filtering (e.g., only a header line),
+            # skip analysis to avoid blind, potentially destructive repairs.
+            non_empty_lines = [ln for ln in fb.splitlines() if ln.strip()]
+            if len(non_empty_lines) <= 1:
+                print(f"⚠️ Feedback for code_{idx}.c too weak (only header), skipping analysis"); continue
                 
             task_analyze(idx, c_file.read_text(), fb, output_dir)
 
