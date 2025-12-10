@@ -1,0 +1,11 @@
+MEMORY MODEL FIX:
+(none)
+
+BOUNDS / ACCESS FIX:
+Guard insert/delete so they only touch indices in [0, size) and stop writing past the static buffer. Track the logical size in an IntArray struct, check capacity before shifting elements, and clear the tail slot after deletions to keep KLEE from flagging stale writes.
+
+FUNCTION SIGNATURE FIX:
+Wrap the raw array + length pair into "typedef struct { int data[MAX_SIZE]; int size; }" and pass pointers to the helpers instead of pretending that "int arr[]" knows how many valid elements remain.
+
+TYPE FIX:
+(none)

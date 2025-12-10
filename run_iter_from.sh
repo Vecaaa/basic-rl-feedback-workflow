@@ -17,10 +17,29 @@ LLVM_PREFIX=${LLVM_PREFIX:-/scratch/$(whoami)/llvm-14/bin}
 CODEQL_HOME=${CODEQL_HOME:-/scratch/$(whoami)/codeql}
 KLEE_BIN=${KLEE_BIN:-/scratch/$(whoami)/klee/build/bin/klee}
 VENV_PATH=${VENV_PATH:-/scratch/$(whoami)/klee-venv}
-OUTPUT_BASE=${OUTPUT_BASE:-/scratch/$(whoami)/llm_outputs}
 PROJECT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 USER_ID=$(whoami)
+DEFAULT_OUTPUT_ROOT="/scratch/${USER_ID}/llm_outputs_runs"
+if [ -z "${OUTPUT_BASE}" ]; then
+  OUTPUT_ROOT=${OUTPUT_ROOT:-$DEFAULT_OUTPUT_ROOT}
+  if [ ! -d "$OUTPUT_ROOT" ]; then
+    echo "❌ OUTPUT_ROOT not found: $OUTPUT_ROOT"
+    echo "   Set OUTPUT_BASE to an existing run directory."
+    exit 1
+  fi
+  latest_run=$(ls -1t "$OUTPUT_ROOT" 2>/dev/null | head -n 1)
+  if [ -z "$latest_run" ]; then
+    echo "❌ No run directories found under $OUTPUT_ROOT"
+    echo "   Set OUTPUT_BASE manually before running."
+    exit 1
+  fi
+  OUTPUT_BASE="$OUTPUT_ROOT/$latest_run"
+else
+  OUTPUT_ROOT=$(dirname "$OUTPUT_BASE")
+fi
+RUN_TAG=${RUN_TAG:-$(basename "$OUTPUT_BASE")}
+
 export PATH="$LLVM_PREFIX:$PATH"
 export CODEQL_HOME
 export LD_LIBRARY_PATH="/scratch/${USER_ID}/z3-build/lib:/scratch/${USER_ID}/sqlite/lib:$LD_LIBRARY_PATH"
@@ -33,6 +52,8 @@ export HF_DATASETS_CACHE="/scratch/$USER/hf_cache"
 echo "🚀 Iterative Secure CodeGen Pipeline (resuming from iteration $START_ITER)"
 echo "📁 PROJECT_DIR : $PROJECT_DIR"
 echo "📦 KLEE headers: $KLEE_INCLUDE"
+echo "Output root    : $OUTPUT_ROOT"
+echo "Run tag        : $RUN_TAG"
 echo "Base           : $OUTPUT_BASE"
 echo "Start Iter     : $START_ITER"
 echo "Max Iters      : $MAX_ITERS"

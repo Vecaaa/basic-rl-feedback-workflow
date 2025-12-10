@@ -1,0 +1,11 @@
+MEMORY MODEL FIX:
+Replace "int* arr = (int*)malloc(n * sizeof(int));" with a fixed-size buffer declared in fill(): "int arr[MAX_N] = {0};" and make sure we only operate on the first n elements so KLEE never sees symbolic malloc sizes.
+
+BOUNDS / ACCESS FIX:
+Iterate indices from 0..n-1 and guard every use of arr[i] by checking the bounds (loop uses i < n) instead of probing arr[i] for i == n. Also pass the actual problem size (n) to fillUtil instead of MAX_N so recursive calls never overrun the buffer.
+
+FUNCTION SIGNATURE FIX:
+(none)
+
+TYPE FIX:
+(none)

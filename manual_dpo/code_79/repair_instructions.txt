@@ -1,0 +1,11 @@
+MEMORY MODEL FIX:
+(none)
+
+BOUNDS / ACCESS FIX:
+Return early when n <= 0, add explicit guard_index() assertions before touching arr[n - i - 1] / arr[n - i], and clamp the user-provided n to the capacity of the static buffer so KLEE never sees out-of-bounds reads.
+
+FUNCTION SIGNATURE FIX:
+(none)
+
+TYPE FIX:
+Include <stdlib.h> so calloc/exit are declared and call calloc with size_t casts to silence CodeQL's type warnings.

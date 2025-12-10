@@ -1,0 +1,11 @@
+MEMORY MODEL FIX:
+(none)
+
+BOUNDS / ACCESS FIX:
+(none)
+
+FUNCTION SIGNATURE FIX:
+Simplify the API to int minTime(int n, int t1, int t2) and keep the memo tables internally instead of passing mismatched pointers and accidental integers. This removes the bad calls "minTime(..., T2, n-1)" that violated the prototype and triggered clang errors.
+
+TYPE FIX:
+Avoid reusing the name "minTime" for both the function and a pointer variable; the helper arrays live in static storage and are initialized before use.

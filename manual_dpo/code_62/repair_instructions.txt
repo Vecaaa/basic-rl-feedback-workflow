@@ -1,0 +1,11 @@
+MEMORY MODEL FIX:
+(none)
+
+BOUNDS / ACCESS FIX:
+(none)
+
+FUNCTION SIGNATURE FIX:
+Provide real definitions for insert(), find_position_to_delete(), and delete_element() so main no longer calls implicit declarations. Each helper now takes explicit lengths, returns a freshly allocated buffer, and communicates the new logical size through an out-parameter.
+
+TYPE FIX:
+Use size_t for positions, return int* from the helpers, and ensure comparisons use the same signedness (compare pos against (size_t)-1 instead of magic -1 integers).

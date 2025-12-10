@@ -1,0 +1,11 @@
+MEMORY MODEL FIX:
+(none)
+
+BOUNDS / ACCESS FIX:
+(none)
+
+FUNCTION SIGNATURE FIX:
+(none)
+
+TYPE FIX:
+Replace the recursive gcd() with an iterative Euclidean loop so the solver cannot blow the recursion limit or trigger the redundant (a == 1 && b == 0) branch.

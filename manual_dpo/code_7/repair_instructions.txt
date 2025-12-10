@@ -1,0 +1,11 @@
+MEMORY MODEL FIX:
+(none)
+
+BOUNDS / ACCESS FIX:
+(none)
+
+FUNCTION SIGNATURE FIX:
+(none)
+
+TYPE FIX:
+Replace the malformed source header lines that still contained literal line-number prefixes ("  2:" etc.) with normal preprocessor directives so clang sees valid tokens. While touching the routine, tighten atoi parsing by skipping leading spaces with isspace() and clamping overflow to INT_[MIN|MAX].

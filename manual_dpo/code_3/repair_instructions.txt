@@ -1,0 +1,11 @@
+MEMORY MODEL FIX:
+(none)
+
+BOUNDS / ACCESS FIX:
+Insert "if (tail) { ... }" guard so we never dereference a NULL pointer when stitching the recursive Cantor segments together. Append the left and right lists after walking to the tail instead of blindly writing to head->next.
+
+FUNCTION SIGNATURE FIX:
+(none)
+
+TYPE FIX:
+(none)

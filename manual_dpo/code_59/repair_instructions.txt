@@ -1,0 +1,11 @@
+MEMORY MODEL FIX:
+(none)
+
+BOUNDS / ACCESS FIX:
+Bound every shift loop by the logical array size and reject insert/delete requests that would underflow/overflow the fixed storage. After a deletion, clear the trailing slot so no stale values are read when iterating to n.
+
+FUNCTION SIGNATURE FIX:
+Represent the array as an IntArray struct that carries both the buffer and its active length so helpers no longer receive a raw pointer + value copy of n that can drift out of sync.
+
+TYPE FIX:
+(none)

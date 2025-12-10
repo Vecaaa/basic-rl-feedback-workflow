@@ -5,17 +5,18 @@
 pip install "transformers>=4.40.0" "datasets" "accelerate" "trl>=0.9.0" peft bitsandbytes
 """
 
+import os
+from pathlib import Path
+
 from datasets import load_dataset
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from trl import DPOTrainer, DPOConfig
 from peft import LoraConfig
-from pathlib import Path
-import os
 
 
 MODEL_NAME = "deepseek-ai/deepseek-coder-1.3b-instruct"
 PROJECT_ROOT = Path(__file__).resolve().parent
-OUTPUT_DIR = PROJECT_ROOT / "fixer-dpo-checkpoint"
+OUTPUT_DIR = Path(f"/scratch/{os.getlogin()}/fixer-dpo-checkpoint")
 DATA_FILE = PROJECT_ROOT / "dpo_data.jsonl"
 
 # 复用流水线用的 HF 缓存目录
@@ -29,6 +30,8 @@ os.environ["HF_DATASETS_CACHE"] = cache_dir
 
 
 def main():
+    local_only = os.environ.get("HF_LOCAL_ONLY", "0") == "1"
+
     print(f"[INFO] Loading DPO dataset from {DATA_FILE} ...")
     dataset = load_dataset("json", data_files=str(DATA_FILE), split="train")
 
@@ -42,8 +45,8 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained(
         MODEL_NAME,
         trust_remote_code=True,
-        cache_dir=cache_dir,
-        local_files_only=True,  # 只用本地缓存
+        cache_dir=str(cache_dir),
+        local_files_only=local_only,
     )
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
@@ -54,8 +57,8 @@ def main():
         load_in_8bit=True,
         device_map="auto",
         trust_remote_code=True,
-        cache_dir=cache_dir,
-        local_files_only=True,  # 只用本地缓存
+        cache_dir=str(cache_dir),
+        local_files_only=local_only,
     )
 
     peft_config = LoraConfig(

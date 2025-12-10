@@ -14,12 +14,26 @@ LLVM_PREFIX=${LLVM_PREFIX:-/scratch/$(whoami)/llvm-14/bin}
 CODEQL_HOME=${CODEQL_HOME:-/scratch/$(whoami)/codeql}
 KLEE_BIN=${KLEE_BIN:-/scratch/$(whoami)/klee/build/bin/klee}
 VENV_PATH=${VENV_PATH:-/scratch/$(whoami)/klee-venv}
-OUTPUT_BASE=${OUTPUT_BASE:-/scratch/$(whoami)/llm_outputs}
 PROJECT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 START_CODE_ID=${START_CODE_ID:-100}
-END_CODE_ID=${END_CODE_ID:-500}
+END_CODE_ID=${END_CODE_ID:-100}
 
 USER_ID=$(whoami)
+DEFAULT_OUTPUT_ROOT="/scratch/${USER_ID}/llm_outputs_runs"
+BASELINE_ITER1_DIR=${BASELINE_ITER1_DIR:-/scratch/${USER_ID}/llm_outputs/iter_1}
+
+if [ -z "${OUTPUT_BASE}" ]; then
+  OUTPUT_ROOT=${OUTPUT_ROOT:-$DEFAULT_OUTPUT_ROOT}
+  mkdir -p "$OUTPUT_ROOT"
+  RUN_TAG=${RUN_TAG:-$(date +%Y%m%d-%H%M%S)}
+  OUTPUT_BASE="$OUTPUT_ROOT/$RUN_TAG"
+else
+  OUTPUT_ROOT=$(dirname "$OUTPUT_BASE")
+  RUN_TAG=${RUN_TAG:-$(basename "$OUTPUT_BASE")}
+fi
+
+mkdir -p "$OUTPUT_BASE"
+
 export PATH="$LLVM_PREFIX:$PATH"
 export CODEQL_HOME
 export LD_LIBRARY_PATH="/scratch/${USER_ID}/z3-build/lib:/scratch/${USER_ID}/sqlite/lib:$LD_LIBRARY_PATH"
@@ -32,6 +46,8 @@ export HF_DATASETS_CACHE="/scratch/$USER/hf_cache"
 echo "🚀 Iterative Secure CodeGen Pipeline (strict, per-file)"
 echo "📁 PROJECT_DIR : $PROJECT_DIR"
 echo "📦 KLEE headers: $KLEE_INCLUDE"
+echo "Output root    : $OUTPUT_ROOT"
+echo "Run tag        : $RUN_TAG"
 echo "Base           : $OUTPUT_BASE"
 echo "Iters          : $MAX_ITERS"
 echo "=========================================="
@@ -70,14 +86,15 @@ assert_file(){ [ -f "$1" ] || fail "missing file: $1"; }
 # 🧹 Pre-run Cleanup (only when running standalone)
 # ==========================================================
 if [ -z "$SKIP_MAIN_LOOP" ]; then
-  if [ -z "$SKIP_MAIN_LOOP" ]; then
-    echo "🧹 Cleaning old iterations (but KEEP iter_1) in $OUTPUT_BASE ..."
-    mkdir -p "$OUTPUT_BASE"
+  echo "🧹 Preparing fresh run directory: $OUTPUT_BASE"
+  rm -rf "$OUTPUT_BASE"
+  mkdir -p "$OUTPUT_BASE"
 
-    # 删掉除了 iter_1 以外的 iter_* 目录
-    if [ -d "$OUTPUT_BASE" ]; then
-      find "$OUTPUT_BASE" -maxdepth 1 -type d -name 'iter_*' ! -name 'iter_1' -exec rm -rf {} +
-    fi
+  if [ -d "$BASELINE_ITER1_DIR" ]; then
+    echo "📂 Seeding iter_1 from baseline: $BASELINE_ITER1_DIR"
+    cp -a "$BASELINE_ITER1_DIR" "$OUTPUT_BASE/" || fail "Failed to copy baseline iter_1"
+  else
+    echo "⚠️ Baseline iter_1 not found at $BASELINE_ITER1_DIR — iteration 1 will be freshly generated."
   fi
 
   # -------- venv & config --------
@@ -376,7 +393,7 @@ run_iteration(){
   echo "Step 1: LLM generate/repair..."
 
   # Load Config for Models
-  MODEL_FIXER="$PROJECT_DIR/fixer-dpo-checkpoint"
+  MODEL_FIXER="/scratch/$USER/fixer-dpo-checkpoint"
   MODEL_ANALYZER="mistralai/Mistral-7B-Instruct-v0.3"
 
   if [ "$iter" -eq 1 ]; then

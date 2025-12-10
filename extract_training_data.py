@@ -5,7 +5,42 @@ import json
 from pathlib import Path
 from collections import defaultdict
 
-OUTPUT_BASE = Path(f"/scratch/{os.environ.get('USER', '')}/llm_outputs")
+def resolve_output_base() -> Path:
+    """
+    Determine which run directory to read when generating DPO data.
+    Priority:
+      1) DPO_OUTPUT_BASE env (explicit override)
+      2) OUTPUT_BASE env (e.g., same as run_iter2)
+      3) Most recent subdirectory under $LLM_OUTPUT_ROOT (default: /scratch/$USER/llm_outputs_runs)
+      4) Legacy /scratch/$USER/llm_outputs fallback
+    """
+    env_override = os.environ.get("DPO_OUTPUT_BASE") or os.environ.get("OUTPUT_BASE")
+    if env_override:
+        path = Path(env_override).expanduser()
+        if path.exists():
+            print(f"[INFO] Using OUTPUT_BASE from environment: {path}")
+            return path
+        print(f"[WARN] OUTPUT_BASE override '{path}' not found, falling back to latest run.")
+
+    user = os.environ.get("USER", "")
+    runs_root = Path(os.environ.get("LLM_OUTPUT_ROOT", f"/scratch/{user}/llm_outputs_runs"))
+    run_candidates = []
+    if runs_root.exists():
+        run_candidates = [p for p in runs_root.iterdir() if p.is_dir()]
+        if run_candidates:
+            latest = max(run_candidates, key=lambda p: p.stat().st_mtime)
+            print(f"[INFO] Auto-detected latest run folder: {latest}")
+            return latest
+
+    legacy = Path(f"/scratch/{user}/llm_outputs")
+    if legacy.exists():
+        print(f"[INFO] Falling back to legacy OUTPUT_BASE: {legacy}")
+        return legacy
+
+    raise SystemExit("[ERROR] No OUTPUT_BASE found. Please set DPO_OUTPUT_BASE or run the pipeline first.")
+
+
+OUTPUT_BASE = resolve_output_base()
 MAX_CODE_ID = 50
 PROJECT_ROOT = Path(__file__).resolve().parent
 MANUAL_DPO_DIR = PROJECT_ROOT / "manual_dpo"

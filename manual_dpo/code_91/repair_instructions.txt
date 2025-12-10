@@ -1,0 +1,11 @@
+MEMORY MODEL FIX:
+(none)
+
+BOUNDS / ACCESS FIX:
+(none)
+
+FUNCTION SIGNATURE FIX:
+(none)
+
+TYPE FIX:
+Replace the stray natural-language instructions with a real implementation of mod_mul() using the repeated-doubling (Russian peasant) technique so we never overflow 64-bit intermediates. Keep all arithmetic reduced modulo mod at each addition/multiplication.

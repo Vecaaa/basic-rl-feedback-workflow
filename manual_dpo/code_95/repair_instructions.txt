@@ -1,0 +1,11 @@
+MEMORY MODEL FIX:
+(none)
+
+BOUNDS / ACCESS FIX:
+Track the position being filled explicitly and stop writing into arr[end - k + 1], which could exceed the buffer. The recursive helper now takes "pos" and "next" arguments so every assignment targets arr[pos] where 0 <= pos < k.
+
+FUNCTION SIGNATURE FIX:
+(none)
+
+TYPE FIX:
+Allocate the temporary combination buffer with calloc(k, sizeof(int)) so the size matches the runtime k.

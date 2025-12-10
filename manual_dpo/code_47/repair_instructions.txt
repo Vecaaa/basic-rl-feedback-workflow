@@ -1,0 +1,11 @@
+MEMORY MODEL FIX:
+(none)
+
+BOUNDS / ACCESS FIX:
+Stop indexing the destination buffer as if it also contained the second sorted sequence. Pass a dedicated second[] input array into merge() and walk both inputs with explicit lengths so i and j never run beyond the backing storage.
+
+FUNCTION SIGNATURE FIX:
+Replace "void merge(int m, int n, int N[], int mPlusN[])" with "void merge(int m, int n, const int first[], const int second[], int out[])" so we no longer alias the destination with a placeholder buffer.
+
+TYPE FIX:
+(none)

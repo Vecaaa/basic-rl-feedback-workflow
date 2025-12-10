@@ -1,0 +1,11 @@
+MEMORY MODEL FIX:
+(none)
+
+BOUNDS / ACCESS FIX:
+(none)
+
+FUNCTION SIGNATURE FIX:
+(none)
+
+TYPE FIX:
+Read the floating-point input into a double via "%lf" so scanf/mocks write the correct width (KLEE previously wrote 8 bytes into a 4-byte float). Also move the summation into a helper that actually uses x in the formula so the computation is meaningful.
