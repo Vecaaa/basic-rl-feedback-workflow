@@ -1,0 +1,13 @@
+MEMORY MODEL FIX:
+(none)
+
+BOUNDS / ACCESS FIX:
+(none)
+
+FUNCTION SIGNATURE FIX:
+(none)
+
+TYPE FIX:
+Terminate the struct definition with a semicolon and flesh out the program so it actually builds:
+- Turn the anonymous struct into a typedef with height/children fields.
+- Provide constructors, insert(), and a traversal in main() to exercise the tree.

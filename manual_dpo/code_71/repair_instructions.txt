@@ -1,0 +1,14 @@
+MEMORY MODEL FIX:
+(none)
+
+BOUNDS / ACCESS FIX:
+(none)
+
+FUNCTION SIGNATURE FIX:
+(none)
+
+TYPE FIX:
+Replace the bogus parent-pointer logic and the unreadable ternary expressions with a memoized largest-independent-set implementation:
+- Extend struct Node with a memo field and make newNode() initialize it.
+- Implement liss() that returns the cached value when available, computes the "exclude" and "include" cases explicitly, and stores the best result in memo.
+- largestIndependentSet() simply calls liss().

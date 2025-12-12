@@ -8,8 +8,8 @@
 # ==========================================================
 
 # -------- Configuration --------
-START_ITER=${START_ITER:-2}  # Default: start from iteration 2
-MAX_ITERS=${MAX_ITERS:-6}
+START_ITER=${START_ITER:-8}  # Default: start from iteration 2
+MAX_ITERS=${MAX_ITERS:-20}
 TIMEOUT_KLEE=${TIMEOUT_KLEE:-10s}
 STOP_ON_ZERO_ISSUES=${STOP_ON_ZERO_ISSUES:-1}
 REQUIRE_TOOLS=${REQUIRE_TOOLS:-1}

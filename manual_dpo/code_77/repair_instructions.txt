@@ -1,0 +1,14 @@
+MEMORY MODEL FIX:
+(none)
+
+BOUNDS / ACCESS FIX:
+(none)
+
+FUNCTION SIGNATURE FIX:
+(none)
+
+TYPE FIX:
+Make insert() and treePathsSum() operate on pointers instead of passing struct-by-value:
+- Define insert(struct Node *root, int data) to return the subtree root and recursively assign to root->left/right.
+- Rework treePathsSumUtil() so it accepts struct Node * and accumulates the base-10 path sum during the traversal instead of trying to mutate local structs.
+- Guard allocation errors with malloc checks and include <limits.h> for clarity.

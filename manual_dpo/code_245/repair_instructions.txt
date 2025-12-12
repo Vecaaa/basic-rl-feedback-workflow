@@ -1,0 +1,13 @@
+MEMORY MODEL FIX:
+(none)
+
+BOUNDS / ACCESS FIX:
+(none)
+
+FUNCTION SIGNATURE FIX:
+(none)
+
+TYPE FIX:
+Strip out the narrative text that was copied below main() and rewrite the Rabin–Karp driver so it:
+- Reads pattern/text once with fgets, trims the trailing newline, and never redefines macros inside main().
+- Computes the rolling hash with ALPHABET/PRIME constants and prints each match index.

@@ -1,0 +1,13 @@
+MEMORY MODEL FIX:
+(none)
+
+BOUNDS / ACCESS FIX:
+(none)
+
+FUNCTION SIGNATURE FIX:
+(none)
+
+TYPE FIX:
+Give the anonymous struct a real typedef name and build a minimal AVL example that actually compiles:
+- Declare `typedef struct Node { ... } Node;` with left/right pointers and initialize them in new_node().
+- Implement insert/rotations/inorder traversal so the program exercises the tree instead of stopping at the unterminated typedef.

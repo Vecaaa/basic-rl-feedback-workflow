@@ -1,167 +1,157 @@
-# extract_training_data.py (append version)
+#!/usr/bin/env python3
+"""
+Rebuild DPO data from iteration outputs using the latest reward logic.
+"""
+
+import json
 import os
 import re
-import json
-from pathlib import Path
 from collections import defaultdict
-
-def resolve_output_base() -> Path:
-    """
-    Determine which run directory to read when generating DPO data.
-    Priority:
-      1) DPO_OUTPUT_BASE env (explicit override)
-      2) OUTPUT_BASE env (e.g., same as run_iter2)
-      3) Most recent subdirectory under $LLM_OUTPUT_ROOT (default: /scratch/$USER/llm_outputs_runs)
-      4) Legacy /scratch/$USER/llm_outputs fallback
-    """
-    env_override = os.environ.get("DPO_OUTPUT_BASE") or os.environ.get("OUTPUT_BASE")
-    if env_override:
-        path = Path(env_override).expanduser()
-        if path.exists():
-            print(f"[INFO] Using OUTPUT_BASE from environment: {path}")
-            return path
-        print(f"[WARN] OUTPUT_BASE override '{path}' not found, falling back to latest run.")
-
-    user = os.environ.get("USER", "")
-    runs_root = Path(os.environ.get("LLM_OUTPUT_ROOT", f"/scratch/{user}/llm_outputs_runs"))
-    run_candidates = []
-    if runs_root.exists():
-        run_candidates = [p for p in runs_root.iterdir() if p.is_dir()]
-        if run_candidates:
-            latest = max(run_candidates, key=lambda p: p.stat().st_mtime)
-            print(f"[INFO] Auto-detected latest run folder: {latest}")
-            return latest
-
-    legacy = Path(f"/scratch/{user}/llm_outputs")
-    if legacy.exists():
-        print(f"[INFO] Falling back to legacy OUTPUT_BASE: {legacy}")
-        return legacy
-
-    raise SystemExit("[ERROR] No OUTPUT_BASE found. Please set DPO_OUTPUT_BASE or run the pipeline first.")
+from typing import Dict, List, Set, Tuple
+from pathlib import Path
 
 
-OUTPUT_BASE = resolve_output_base()
-MAX_CODE_ID = 50
 PROJECT_ROOT = Path(__file__).resolve().parent
 MANUAL_DPO_DIR = PROJECT_ROOT / "manual_dpo"
-
 OUT_FILE = PROJECT_ROOT / "dpo_data.jsonl"
 SEEN_FILE = PROJECT_ROOT / "seen_pairs.json"
 
 
-# --------------------------
-# Load seen pairs
-# --------------------------
-if SEEN_FILE.exists():
-    raw = json.loads(SEEN_FILE.read_text())
-    seen_pairs = set()
+def resolve_run_dirs() -> List[Path]:
+    """
+    Determine which run directories to extract from.
+    If DPO_OUTPUT_BASE/OUTPUT_BASE points to a specific run, only that run is used.
+    Otherwise, gather every run under $LLM_OUTPUT_ROOT (default /scratch/$USER/llm_outputs_runs).
+    """
+    env_override = os.environ.get("DPO_OUTPUT_BASE") or os.environ.get("OUTPUT_BASE")
+    if env_override:
+        base_path = Path(env_override).expanduser()
+        if not base_path.exists():
+            raise SystemExit(f"[ERROR] OUTPUT_BASE override '{base_path}' not found.")
+        if any(base_path.glob("iter_*")):
+            print(f"[INFO] Using single run folder from environment: {base_path}")
+            return [base_path]
+        run_dirs = sorted(
+            [
+                p
+                for p in base_path.iterdir()
+                if p.is_dir() and any(p.glob("iter_*"))
+            ],
+            key=lambda p: p.stat().st_mtime,
+        )
+        if not run_dirs:
+            raise SystemExit(f"[ERROR] No iter_* directories found under {base_path}")
+        print(f"[INFO] Using {len(run_dirs)} run folders under {base_path}")
+        return run_dirs
 
-    # 兼容：raw 是列表，每个元素可能是 [code_id, best_iter, worst_iter]
-    if isinstance(raw, list):
-        for item in raw:
-            # 之前保存的是 (code_id, best_iter, worst_iter)
-            if isinstance(item, (list, tuple)) and len(item) == 3:
-                seen_pairs.add(tuple(item))
-            else:
-                # 万一以后改格式，也不至于直接炸
-                try:
-                    seen_pairs.add(tuple(item))
-                except TypeError:
-                    pass
-    else:
-        # 非预期格式，就当空处理
-        seen_pairs = set()
-else:
-    seen_pairs = set()
+    user = os.environ.get("USER", os.getlogin())
+    runs_root = Path(os.environ.get("LLM_OUTPUT_ROOT", f"/scratch/{user}/llm_outputs_runs"))
+    run_dirs: List[Path] = []
+    if runs_root.exists():
+        run_dirs = sorted(
+            [
+                p
+                for p in runs_root.iterdir()
+                if p.is_dir() and any(p.glob("iter_*"))
+            ],
+            key=lambda p: p.stat().st_mtime,
+        )
+    legacy = Path(f"/scratch/{user}/llm_outputs")
+    if legacy.exists() and any(legacy.glob("iter_*")):
+        run_dirs.append(legacy)
+
+    if not run_dirs:
+        raise SystemExit("[ERROR] No run directories found. Set DPO_OUTPUT_BASE or run the pipeline first.")
+
+    print(f"[INFO] Found {len(run_dirs)} run folders for extraction.")
+    return run_dirs
 
 
-def save_seen():
-    SEEN_FILE.write_text(json.dumps(list(seen_pairs)))
+RUN_DIRS = resolve_run_dirs()
 
 
-def read_text(path: Path) -> str | None:
-    try:
-        return path.read_text(encoding="utf-8")
-    except FileNotFoundError:
-        return None
-
-
-def compute_reward(iter_dir: Path, code_id: int) -> int | None:
+def compute_reward(iter_dir: Path, code_id: int) -> float:
+    """
+    Reward combines compile success, KLEE health, and CodeQL signal.
+    """
     compiled_dir = iter_dir / "compiled_output"
     feedback_dir = iter_dir / "feedback"
     klee_dir = iter_dir / "klee_output"
 
-    # Compile reward
-    compile_failures = compiled_dir / "compile_failures.txt"
+    base = f"code_{code_id}"
+
     compile_ok = 1
+    compile_warnings = 0
+    compile_failures = compiled_dir / "compile_failures.txt"
     if compile_failures.exists():
-        txt = compile_failures.read_text(encoding="utf-8")
-        if f"code_{code_id} " in txt or f"code_{code_id}\n" in txt:
+        txt = compile_failures.read_text(encoding="utf-8", errors="ignore")
+        if re.search(rf"\b{base}\b", txt):
             compile_ok = 0
 
-    # KLEE reward
+    compile_log = compiled_dir / f"{base}_compile.log"
+    if compile_log.exists():
+        for line in compile_log.read_text(encoding="utf-8", errors="ignore").splitlines():
+            if "warning:" in line:
+                compile_warnings += 1
+
+    code_klee_dir = klee_dir / base
     klee_errs = 0
-    code_klee_dir = klee_dir / f"code_{code_id}"
+    klee_tests = 0
+    klee_crashed = 0
     if code_klee_dir.exists():
-        for err_file in code_klee_dir.rglob("*.err"):
-            name = err_file.name.lower()
-            if "mock" in name:
-                continue
-            content = err_file.read_text(encoding="utf-8", errors="ignore").lower()
-            if "mock" in content:
-                continue
-            klee_errs += 1
+        all_errs = [p for p in code_klee_dir.glob("*.err") if "mock" not in p.name.lower()]
+        klee_errs = len(all_errs)
+        klee_tests = sum(1 for _ in code_klee_dir.glob("*.ktest"))
+        log_file = klee_dir / f"klee_{base}.log"
+        if log_file.exists():
+            log_txt = log_file.read_text(encoding="utf-8", errors="ignore").lower()
+            if any(tok in log_txt for tok in ("haltimer", "timeout", "segmentation fault", "dumped core")):
+                klee_crashed = 1
 
-    # CodeQL reward
-    codeql_file = feedback_dir / f"code_{code_id}_codeql.txt"
+    codeql_file = feedback_dir / f"{base}_codeql.txt"
+    codeql_issues = 0
     if codeql_file.exists():
-        txt = codeql_file.read_text(encoding="utf-8")
-        codeql_ok = ("— 0 issues found" in txt)
+        txt = codeql_file.read_text(encoding="utf-8", errors="ignore")
+        m = re.search(r"—\s*([0-9]+)\s+issues found", txt)
+        if m:
+            codeql_issues = int(m.group(1))
+
+    compile_score = 1.0 if compile_ok else 0.0
+    warning_penalty = min(0.5, 0.02 * compile_warnings)
+
+    klee_score = 0.0
+    if klee_tests > 0:
+        klee_score += 0.4
+    if klee_tests > 0 and klee_errs == 0:
+        klee_score += 0.6
     else:
-        codeql_ok = True
+        klee_score -= 0.1 * klee_errs
+    if klee_crashed:
+        klee_score -= 0.5
+    klee_score = max(-1.0, min(1.0, klee_score))
 
-    return int(compile_ok) + int(klee_errs == 0) + int(codeql_ok)
+    codeql_score = 1.0 if codeql_issues == 0 else 1.0 / (1.0 + codeql_issues)
 
-
-def get_function_names(code: str) -> set[str]:
-    """
-    粗略提取函数名集合，用于结构健康检查。
-    """
-    pattern = r'\b(?:int|void|char|float|double|long|short|unsigned|struct\s+\w+)\s+(\w+)\s*\('
-    return set(re.findall(pattern, code))
+    return 3.0 * compile_score + 2.0 * klee_score + 1.0 * codeql_score - warning_penalty
 
 
 def structural_ok(current_code: str, fixed_code: str) -> bool:
-    """
-    结构健康检查，避免“删功能”式作弊修复进入数据集。
+    def func_names(blob: str) -> Set[str]:
+        pattern = r'\b(?:int|void|char|float|double|long|short|unsigned|struct\s+\w+)\s+(\w+)\s*\('
+        return set(re.findall(pattern, blob))
 
-    规则：
-      - 非空行数不能暴跌到 <50%（除非原始代码本身就很短）。
-      - 原来的非 main 函数大部分仍然存在（至少 70% 保留）。
-      - 如果原来有非 main 函数，修复后不能只剩一个 main。
-    """
     cur_lines = [ln for ln in current_code.splitlines() if ln.strip()]
     fix_lines = [ln for ln in fixed_code.splitlines() if ln.strip()]
+    if len(cur_lines) >= 10 and len(fix_lines) < max(5, int(len(cur_lines) * 0.5)):
+        return False
 
-    cur_n = len(cur_lines)
-    fix_n = len(fix_lines)
-
-    # 行数健康检查：允许适度收缩，但不接受明显“缩成空壳”
-    if cur_n >= 10:
-        if fix_n < max(5, int(cur_n * 0.5)):
-            return False
-
-    cur_funcs = get_function_names(current_code)
-    fix_funcs = get_function_names(fixed_code)
-
+    cur_funcs = func_names(current_code)
+    fix_funcs = func_names(fixed_code)
     cur_non_main = {f for f in cur_funcs if f != "main"}
     fix_non_main = {f for f in fix_funcs if f != "main"}
 
-    # 如果原来有非 main 函数，修复后不能全没了
     if cur_non_main and not fix_non_main:
         return False
-
-    # 要求至少保留大部分非 main 函数（70%）
     if cur_non_main:
         preserved = len(cur_non_main & fix_non_main)
         if preserved < max(1, int(len(cur_non_main) * 0.7)):
@@ -182,132 +172,136 @@ def build_prompt(current_code: str, repair_instructions: str) -> str:
     )
 
 
-def collect_records():
-    records_by_code_id = defaultdict(list)
-
-    for p in OUTPUT_BASE.glob("iter_*"):
-        try:
-            idx = int(p.name.split("_")[1])
-        except:
-            continue
-
-        cleaned_dir = p / "cleaned_code"
-        gen_dir = p / "generated_code"
-        if not cleaned_dir.exists() or not gen_dir.exists():
-            continue
-
-        for code_id in range(1, MAX_CODE_ID + 1):
-            cur = cleaned_dir / f"code_{code_id}.c"
-            rep = gen_dir / f"repair_prompt_{code_id}.txt"
-            fix = gen_dir / f"code_{code_id}.c"
-
-            if not (cur.exists() and rep.exists() and fix.exists()):
+def collect_records(run_dirs: List[Path]) -> Dict[int, List[dict]]:
+    records = defaultdict(list)
+    for run_dir in run_dirs:
+        for iter_dir in sorted(run_dir.glob("iter_*")):
+            try:
+                iter_idx = int(iter_dir.name.split("_")[1])
+            except (IndexError, ValueError):
                 continue
 
-            # 结构健康检查，过滤掉“删功能”式修复
-            cur_text = cur.read_text()
-            fix_text = fix.read_text()
-            if not structural_ok(cur_text, fix_text):
+            cleaned_dir = iter_dir / "cleaned_code"
+            gen_dir = iter_dir / "generated_code"
+            if not cleaned_dir.exists() or not gen_dir.exists():
                 continue
 
-            reward = compute_reward(p, code_id)
-            if reward is None:
-                continue
+            for cur_file in cleaned_dir.glob("code_*.c"):
+                try:
+                    code_id = int(cur_file.stem.split("_")[1])
+                except (IndexError, ValueError):
+                    continue
 
-            prompt = build_prompt(
-                cur_text,
-                rep.read_text()
-            )
+                rep_file = gen_dir / f"repair_prompt_{code_id}.txt"
+                fix_file = gen_dir / f"code_{code_id}.c"
+                if not rep_file.exists() or not fix_file.exists():
+                    continue
 
-            records_by_code_id[code_id].append(
-                {
-                    "iter": idx,
-                    "prompt": prompt,
-                    "fixed_code": fix.read_text(),
-                    "reward": reward
-                }
-            )
+                cur_text = cur_file.read_text(encoding="utf-8", errors="ignore")
+                fix_text = fix_file.read_text(encoding="utf-8", errors="ignore")
+                if not structural_ok(cur_text, fix_text):
+                    continue
 
-    return records_by_code_id
+                reward = compute_reward(iter_dir, code_id)
+                prompt = build_prompt(cur_text, rep_file.read_text(encoding="utf-8", errors="ignore"))
 
+                records[code_id].append(
+                    {
+                        "iter": iter_idx,
+                        "run": run_dir.name,
+                        "prompt": prompt,
+                        "fixed_code": fix_text,
+                        "reward": reward,
+                    }
+                )
+
+    return records
 
 
 def main():
-    print(f"[INFO] Loading previous seen_pairs: {len(seen_pairs)} items")
+    seen_pairs: Set[Tuple] = set()
+    out_lines: List[str] = []
 
-    recs = collect_records()
+    records = collect_records(RUN_DIRS)
 
-    new_pairs = 0
+    for code_id, attempts in records.items():
+        if len(attempts) < 2:
+            continue
+        attempts.sort(key=lambda r: (r["reward"], r["iter"]))
+        worst = attempts[0]
+        best = attempts[-1]
+        if best["reward"] <= worst["reward"]:
+            continue
 
-    with OUT_FILE.open("a", encoding="utf-8") as f:  # APPEND MODE
-        for code_id, attempts in recs.items():
-            if len(attempts) < 2:
+        key = (code_id, best["run"], best["iter"], worst["run"], worst["iter"])
+        if key in seen_pairs:
+            continue
+        seen_pairs.add(key)
+
+        out_lines.append(
+            json.dumps(
+                {
+                    "prompt": best["prompt"],
+                    "chosen": best["fixed_code"],
+                    "rejected": worst["fixed_code"],
+                    "code_id": code_id,
+                },
+                ensure_ascii=False,
+            )
+        )
+
+    manual_added = 0
+    if MANUAL_DPO_DIR.is_dir():
+        for subdir in sorted(MANUAL_DPO_DIR.iterdir()):
+            if not subdir.is_dir():
+                continue
+            m = re.match(r"code_(\d+)$", subdir.name)
+            if not m:
+                continue
+            code_id = int(m.group(1))
+            cur = subdir / "current.c"
+            rep = subdir / "repair_instructions.txt"
+            chosen = subdir / "chosen.c"
+            rejected = subdir / "rejected.c"
+            if not (cur.exists() and rep.exists() and chosen.exists() and rejected.exists()):
                 continue
 
-            attempts_sorted = sorted(attempts, key=lambda r: (r["reward"], r["iter"]))
-            worst = attempts_sorted[0]
-            best = attempts_sorted[-1]
-
-            if best["reward"] <= worst["reward"]:
-                continue
-
-            key = (code_id, best["iter"], worst["iter"])
+            key = ("manual", code_id)
             if key in seen_pairs:
                 continue
-
-            # Append new DPO pair
-            out = {
-                "prompt": best["prompt"],
-                "chosen": best["fixed_code"],
-                "rejected": worst["fixed_code"],
-                "code_id": code_id
-            }
-            f.write(json.dumps(out, ensure_ascii=False) + "\n")
-
             seen_pairs.add(key)
-            new_pairs += 1
 
-        # 追加手工黄金样本（manual_dpo 下的目录）
-        if MANUAL_DPO_DIR.is_dir():
-            for sub in MANUAL_DPO_DIR.iterdir():
-                if not sub.is_dir():
-                    continue
-                m = re.match(r"code_(\d+)$", sub.name)
-                if not m:
-                    continue
-                code_id = int(m.group(1))
-                cur_path = sub / "current.c"
-                rep_path = sub / "repair_instructions.txt"
-                chosen_path = sub / "chosen.c"
-                rejected_path = sub / "rejected.c"
-                if not (cur_path.exists() and rep_path.exists() and chosen_path.exists() and rejected_path.exists()):
-                    continue
-
-                prompt = build_prompt(
-                    cur_path.read_text(encoding="utf-8"),
-                    rep_path.read_text(encoding="utf-8")
+            out_lines.append(
+                json.dumps(
+                    {
+                        "prompt": build_prompt(
+                            cur.read_text(encoding="utf-8", errors="ignore"),
+                            rep.read_text(encoding="utf-8", errors="ignore"),
+                        ),
+                        "chosen": chosen.read_text(encoding="utf-8", errors="ignore"),
+                        "rejected": rejected.read_text(encoding="utf-8", errors="ignore"),
+                        "code_id": code_id,
+                    },
+                    ensure_ascii=False,
                 )
-                chosen = chosen_path.read_text(encoding="utf-8")
-                rejected = rejected_path.read_text(encoding="utf-8")
+            )
+            manual_added += 1
 
-                key = ("manual", code_id)
-                if key in seen_pairs:
-                    continue
+    unique_lines: List[str] = []
+    line_hash: Set[str] = set()
+    for line in out_lines:
+        if line not in line_hash:
+            unique_lines.append(line)
+            line_hash.add(line)
 
-                out = {
-                    "prompt": prompt,
-                    "chosen": chosen,
-                    "rejected": rejected,
-                    "code_id": code_id
-                }
-                f.write(json.dumps(out, ensure_ascii=False) + "\n")
-                seen_pairs.add(key)
-                new_pairs += 1
+    SEEN_FILE.write_text(
+        json.dumps([list(item) for item in seen_pairs], ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    OUT_FILE.write_text("\n".join(unique_lines) + ("\n" if unique_lines else ""), encoding="utf-8")
 
-    save_seen()
-
-    print(f"[INFO] Added {new_pairs} NEW DPO samples.")
-    print(f"[INFO] Total seen_pairs: {len(seen_pairs)}")
+    print(f"[INFO] Generated {len(unique_lines)} total DPO samples ({manual_added} manual).")
+    print(f"[INFO] Aggregated {len(RUN_DIRS)} run(s): {[p.name for p in RUN_DIRS]}")
 
 
 if __name__ == "__main__":

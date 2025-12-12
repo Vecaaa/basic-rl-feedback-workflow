@@ -1,0 +1,13 @@
+MEMORY MODEL FIX:
+(none)
+
+BOUNDS / ACCESS FIX:
+(none)
+
+FUNCTION SIGNATURE FIX:
+(none)
+
+TYPE FIX:
+The corrupted source still contains literal line numbers and over-engineered guards that stop the program from compiling.
+- Remove the prefixed "  2:" etc. lines so the preprocessor directives are valid.
+- Implement a straightforward BST insert + LCA search without the bogus INT_MIN/MAX checks.

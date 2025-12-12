@@ -6,7 +6,7 @@
 #set -o pipefail
 
 # -------- Tunables --------
-MAX_ITERS=${MAX_ITERS:-5}
+MAX_ITERS=${MAX_ITERS:-10}
 TIMEOUT_KLEE=${TIMEOUT_KLEE:-10s}
 STOP_ON_ZERO_ISSUES=${STOP_ON_ZERO_ISSUES:-1}
 REQUIRE_TOOLS=${REQUIRE_TOOLS:-1}
@@ -15,8 +15,8 @@ CODEQL_HOME=${CODEQL_HOME:-/scratch/$(whoami)/codeql}
 KLEE_BIN=${KLEE_BIN:-/scratch/$(whoami)/klee/build/bin/klee}
 VENV_PATH=${VENV_PATH:-/scratch/$(whoami)/klee-venv}
 PROJECT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-START_CODE_ID=${START_CODE_ID:-100}
-END_CODE_ID=${END_CODE_ID:-100}
+START_CODE_ID=${START_CODE_ID:-500}
+END_CODE_ID=${END_CODE_ID:-500}
 
 USER_ID=$(whoami)
 DEFAULT_OUTPUT_ROOT="/scratch/${USER_ID}/llm_outputs_runs"
