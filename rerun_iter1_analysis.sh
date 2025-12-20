@@ -68,10 +68,9 @@ for bc in "$bl"/code_*.bc; do
 done
 
 echo "📋 Rebuilding per-file feedback ..."
-# 通过 source run_iter2.sh 来拿到 build_feedback_per_file 函数，
-# 并用 SKIP_MAIN_LOOP=1 避免触发主循环和清空 OUTPUT_BASE。
+# Source run_iter2.sh to access the build_feedback_per_file function,
+# and use SKIP_MAIN_LOOP=1 to avoid triggering the main loop and clearing OUTPUT_BASE.
 SKIP_MAIN_LOOP=1 source "$PROJECT_DIR/run_iter2.sh"
 build_feedback_per_file "$d"
 
 echo "完成：iter_${ITER} 的 CodeQL/compile/KLEE/feedback 已按新逻辑重算（代码本身未改动）。"
-

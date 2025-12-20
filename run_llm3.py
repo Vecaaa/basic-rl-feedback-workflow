@@ -5,7 +5,7 @@ run_llm.py – Minimal Two-Stage LLM Driver (Generate / Analyze / Repair)
 Modes (--task):
 1. generate : PROMPT → code_i.c
    - Used in Iteration 1.
-   - Model = Fixer (由外部脚本通过环境变量 MODEL 控制)
+   - Model = Fixer (controlled by external scripts via the MODEL environment variable)
 
 2. analyze  : CURRENT_CODE + FEEDBACK → repair_prompt_i.txt
    - Used in Iteration 2+ (Step 1).
@@ -88,7 +88,7 @@ tokenizer = AutoTokenizer.from_pretrained(
     local_files_only=LOCAL_ONLY,
 )
 
-# 防止 chat 模板干扰
+# Prevent chat templates from interfering
 if getattr(tokenizer, "chat_template", None):
     tokenizer.chat_template = None
 
@@ -106,10 +106,10 @@ model = AutoModelForCausalLM.from_pretrained(
 
 
 # ==========================================================
-# 基础工具函数
+# Basic utility functions
 # ==========================================================
 def run_model_prompt(prompt: str, max_tokens: int | None = None) -> str:
-    """最小化调用封装：输入纯文本，输出纯文本"""
+    """Minimal wrapper: take plain text input and return plain text output."""
     if max_tokens is None:
         max_tokens = max_new_tokens
 
@@ -138,7 +138,7 @@ def run_model_prompt(prompt: str, max_tokens: int | None = None) -> str:
 
 
 def clean_problem_prompt(p: str) -> str:
-    """简单去掉 prompt 中的 Examples / Note 段落（如果你有的话）"""
+    """Remove Examples / Note sections from the prompt if present."""
     lines = p.splitlines()
     new = []
     skip = False
@@ -161,11 +161,11 @@ def clean_problem_prompt(p: str) -> str:
 
 def extract_c_code(text: str, fallback: str = "") -> str:
     """
-    从模型输出中提取 C 代码（简单稳定版本）：
-    1. 优先 ```c ... ```
-    2. 再找 ``` ... ```
-    3. 再从 '#include' 到最后一个 '}'
-    4. 否则 fallback
+    Extract C code from model output (simple stable version):
+    1. Prefer ```c ... ```
+    2. Then look for ``` ... ```
+    3. Then slice from '#include' to the last '}'
+    4. Otherwise fallback
     """
     if not text.strip():
         return fallback
@@ -173,13 +173,13 @@ def extract_c_code(text: str, fallback: str = "") -> str:
     # 1) ```c ... ```
     m = re.findall(r"```(?:c|C|cpp)?\s*(.*?)```", text, re.S)
     if m:
-        # 选最长的块
+        # Choose the longest block
         m_sorted = sorted(m, key=lambda s: len(s), reverse=True)
         code = m_sorted[0].strip()
         if "#include" in code or "int main" in code:
             return code
 
-    # 2) 任意 ``` ... ```
+    # 2) Any ``` ... ```
     m2 = re.findall(r"```(.*?)```", text, re.S)
     if m2:
         m2_sorted = sorted(m2, key=lambda s: len(s), reverse=True)
@@ -187,7 +187,7 @@ def extract_c_code(text: str, fallback: str = "") -> str:
         if "#include" in code or "int main" in code:
             return code
 
-    # 3) 从 #include 开始截取
+    # 3) Slice starting from #include
     idx = text.find("#include")
     if idx != -1:
         tail = text[idx:]
@@ -196,25 +196,25 @@ def extract_c_code(text: str, fallback: str = "") -> str:
             return tail[: last_brace + 1].strip()
         return tail.strip()
 
-    # 4) 回退
+    # 4) Fallback
     return fallback or text.strip()
 
 
 def add_line_numbers(code: str) -> str:
-    """给代码加行号，方便 analyze 阶段提示位置"""
+    """Add line numbers to the code to help the analyze stage reference positions."""
     lines = code.splitlines()
     return "\n".join(f"{i+1:3}: {line}" for i, line in enumerate(lines))
 
 
 # ==========================================================
-# === NEW === 错误分类 + 策略块
+# === NEW === Error classification + strategy block
 # ==========================================================
 def classify_error_and_strategy(feedback: str) -> tuple[str, str]:
     """
-    粗略根据 compiler / KLEE / CodeQL 文本，把错误分成几类，
-    给 analyzer 一段更硬的“策略提示”。
+    Roughly categorize errors based on compiler / KLEE / CodeQL text,
+    and provide the analyzer with a stronger strategy hint.
 
-    返回: (error_type, strategy_block)
+    Returns: (error_type, strategy_block)
     """
     fb = feedback.lower()
 
@@ -250,7 +250,7 @@ You MUST:
 - Do NOT change the function signature."""
         )
 
-    # 3) 行号前缀污染： "2: #include <stdio.h>" 之类
+    # 3) Line-number prefix pollution: strings like "2: #include <stdio.h>"
     if "unknown type name '2'" in fb or re.search(r"\n\s*\d+:\s*#include", feedback):
         return(
             "LINE_PREFIX_CLEANUP",
@@ -264,7 +264,7 @@ Example:
 Do not change the actual include list or control flow."""
         )
 
-    # 4) bool / true / false 未声明
+    # 4) bool / true / false undeclared
     if ("use of undeclared identifier 'bool'" in fb
         or "use of undeclared identifier 'true'" in fb
         or "use of undeclared identifier 'false'" in fb
@@ -283,7 +283,7 @@ Do NOT change the algorithm or I/O format when doing this."""
 
     # 5) implicit declaration of function ...
     if "implicit declaration of function" in fb:
-        # 尝试提取函数名
+        # Try to extract the function name
         m = re.search(r"implicit declaration of function '([^']+)'", feedback)
         fn = m.group(1) if m else "the function"
         return(
@@ -298,7 +298,7 @@ You MUST:
 Do NOT silently rename the function or change its parameter list in a way that breaks the intent."""
         )
 
-    # 6) variable length array with static / VLA 问题
+    # 6) variable length array with static / VLA issue
     if "variable length array" in fb and "static" in fb:
         return(
             "VLA_STATIC_FIX",
@@ -367,10 +367,10 @@ Avoid large refactors or changing the overall algorithm."""
 
 
 # ==========================================================
-# 各任务实现
+# Task implementations
 # ==========================================================
 def task_generate(idx: int, problem_prompt: str, output_dir: Path):
-    """Iteration 1：用问题 prompt 生成初始 C 代码"""
+    """Iteration 1: generate initial C code from the problem prompt."""
     output_dir.mkdir(parents=True, exist_ok=True)
     code_path = output_dir / f"code_{idx}.c"
     raw_path = output_dir / f"raw_code_{idx}.txt"
@@ -405,7 +405,7 @@ NOW OUTPUT ONLY C CODE:
 
 def pick_feedback(feedback_dir: Path, idx: int) -> str:
     """
-    选择 per-file feedback（优先级：KLEE > compile > CodeQL）
+    Choose per-file feedback (priority: KLEE > compile > CodeQL)
       feedback_klee_code_{i}.txt
       feedback_compile_code_{i}.txt
       feedback_codeql_code_{i}.txt
@@ -425,8 +425,8 @@ def pick_feedback(feedback_dir: Path, idx: int) -> str:
 
 def task_analyze(idx: int, current_code: str, feedback: str, output_dir: Path):
     """
-    Iteration 2+ Step 1：根据 CURRENT_CODE + TOOL FEEDBACK 生成“自然语言修复指令”
-    注意：这里输出的是纯文本 repair instructions，不包含代码。
+    Iteration 2+ Step 1: generate natural-language repair instructions from CURRENT_CODE + TOOL FEEDBACK.
+    Note: the output here is plain-text repair instructions, not code.
     """
     output_dir.mkdir(parents=True, exist_ok=True)
     rp_path = output_dir / f"repair_prompt_{idx}.txt"
@@ -435,7 +435,7 @@ def task_analyze(idx: int, current_code: str, feedback: str, output_dir: Path):
 
     numbered = add_line_numbers(current_code)
 
-    # === NEW === 调用错误分类器，生成策略提示块
+    # === NEW === Call the error classifier to generate the strategy block
     err_type, strategy_block = classify_error_and_strategy(feedback)
 
     prompt = f"""You are a C static analysis assistant.
@@ -475,7 +475,7 @@ REPAIR INSTRUCTIONS:
 """
 
     analysis = run_model_prompt(prompt, max_tokens=max_new_tokens)
-    # 简单清洗：去掉可能意外生成的```等
+    # Simple cleanup: remove accidental ``` blocks, etc.
     analysis = analysis.strip()
     if "```" in analysis:
         analysis = analysis.split("```", 1)[0].strip()
@@ -489,7 +489,7 @@ REPAIR INSTRUCTIONS:
 
 def task_repair(idx: int, current_code: str, repair_instructions: str, output_dir: Path):
     """
-    Iteration 2+ Step 2：根据 repair instructions 生成修复后的完整 C 代码
+    Iteration 2+ Step 2: generate repaired, complete C code based on the repair instructions.
     """
     output_dir.mkdir(parents=True, exist_ok=True)
     code_path = output_dir / f"code_{idx}.c"
@@ -533,7 +533,7 @@ Now output the fixed code:
 
 
 # ==========================================================
-# 主入口
+# Main entry point
 # ==========================================================
 def main():
     output_dir = Path(os.environ.get("OUTPUT_DIR", "./generated_code"))
@@ -545,7 +545,7 @@ def main():
     feedback_dir = Path(feedback_dir_env) if feedback_dir_env else None
     repair_prompts_dir = Path(repair_prompts_dir_env) if repair_prompts_dir_env else None
 
-    # GENERATE 模式
+    # GENERATE mode
     if TASK == "generate":
         if prompts_dir is not None and prompts_dir.exists():
             files = sorted(prompts_dir.glob("prompt_*.txt"))
@@ -575,7 +575,7 @@ def main():
                 task_generate(i, p, output_dir)
             return
 
-    # ANALYZE / REPAIR 模式
+    # ANALYZE / REPAIR mode
     if ONLY_SET:
         target_indices = sorted(int(x) for x in ONLY_SET)
     else:

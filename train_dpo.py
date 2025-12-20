@@ -1,6 +1,6 @@
 # train_dpo.py
 """
-依赖安装（建议在单独的虚拟环境中执行）：
+Dependency installation (recommended in a dedicated virtual environment):
 
 pip install "transformers>=4.40.0" "datasets" "accelerate" "trl>=0.9.0" peft bitsandbytes
 """
@@ -19,7 +19,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent
 OUTPUT_DIR = Path(f"/scratch/{os.getlogin()}/fixer-dpo-checkpoint")
 DATA_FILE = PROJECT_ROOT / "dpo_data.jsonl"
 
-# 复用流水线用的 HF 缓存目录
+# Reuse the HF cache directory from the pipeline
 user = os.getlogin()
 cache_dir = os.environ.get("HF_CACHE", f"/scratch/{user}/hf_cache")
 os.makedirs(cache_dir, exist_ok=True)

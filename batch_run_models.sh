@@ -11,7 +11,7 @@ mkdir -p results
 
 while IFS= read -r line; do
 echo "DEBUG: read line => '$line'"
-  # 跳过空行
+  # Skip empty lines
   [[ -z "$line" ]] && continue
 
   for model in "${MODELS[@]}"; do
