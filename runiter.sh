@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# ---- 调整这些变量到你的环境（如果需要） ----
+# ---- Adjust these variables for your environment (if needed) ----
 LLVM_PREFIX=${LLVM_PREFIX:-/scratch/$(whoami)/llvm-14/bin}
 KLEE_BIN=${KLEE_BIN:-/scratch/$(whoami)/klee/build/bin/klee}
 PROJECT_DIR=${PROJECT_DIR:-$(pwd)}

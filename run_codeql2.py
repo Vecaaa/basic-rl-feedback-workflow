@@ -32,7 +32,7 @@ if not os.path.isfile(codeql_bin):
     codeql_bin = "codeql"
 
 # =========================================================
-# Query Suite (老师版本)
+# Query Suite (teacher version)
 # =========================================================
 ql_spec = "codeql/cpp-queries:codeql-suites/cpp-security-and-quality.qls"
 

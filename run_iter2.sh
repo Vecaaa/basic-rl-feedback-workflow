@@ -145,7 +145,7 @@ build_feedback_per_file() {
           "$fb_dir/${base}_codeql.txt" | head -n 200 >> "$out_codeql"
         echo "" >> "$out_codeql"
 
-        # 💡 针对 cpp/incomplete-parity-check 给一个可执行的 HINT
+        # 💡 Provide an actionable hint for cpp/incomplete-parity-check
         if grep -q "cpp/incomplete-parity-check" "$fb_dir/${base}_codeql.txt"; then
           cat >> "$out_codeql" << 'EOF'
 [HINT][CODEQL] Fix parity check: avoid "x % 2 == 1" on signed or possibly-negative values. Prefer "x % 2 != 0" or "(x & 1) != 0", or ensure x is non-negative before taking modulo.
@@ -170,10 +170,10 @@ EOF
           {
             echo "----- compiler log excerpt (primary errors) -----"
 
-            # ✅ 1️⃣ 优先抓标准 C/Clang 错误
+            # ✅ 1️⃣ Prioritize standard C/Clang errors
             grep -E "error:|warning:" "$clog" | head -n 20
 
-            # ✅ 2️⃣ 如果一个都没抓到 → 说明是 linker / LLVM / mock / nm 类错误
+            # ✅ 2️⃣ If none are captured → likely linker / LLVM / mock / nm type errors
             if ! grep -qE "error:|warning:" "$clog"; then
               echo "[FALLBACK] No explicit error:/warning: found. Dumping last 40 lines:"
               tail -n 40 "$clog"
@@ -183,7 +183,7 @@ EOF
 
           echo "" >> "$out_compile"
 
-          # ✅ ✅ ✅ 额外增强：自动错误类型提示（喂给第二个 LLM）
+          # ✅ ✅ ✅ Additional enhancement: automatic error type hints (fed to the second LLM)
           if grep -qi "undefined reference" "$clog"; then
             echo "[HINT][COMPILER] Undefined reference detected → missing function definition or prototype mismatch." >> "$out_compile"
             echo "" >> "$out_compile"
@@ -200,13 +200,13 @@ EOF
           fi
 
 
-          # 💡 常见错误 1：隐式声明
+          # 💡 Common issue 1: implicit declaration
           if grep -q "implicit declaration of function 'min_operations'" "$clog"; then
             echo "[HINT][COMPILER] Implement 'min_operations' or add its prototype *before* main; do not rely on implicit declarations." >> "$out_compile"
             echo "" >> "$out_compile"
           fi
 
-          # 💡 常见错误 2：VLA 变长数组
+          # 💡 Common issue 2: VLA (variable length array)
           if grep -q "variable length array" "$clog"; then
             echo "[HINT][COMPILER] Replace variable-length arrays like 'int a[n];' with fixed-size arrays (e.g. 'int a[MAX_N];') and check 'n <= MAX_N' before use." >> "$out_compile"
             echo "" >> "$out_compile"
@@ -332,7 +332,7 @@ EOF
       
       tmp_s="${feedback_file}.simplified"
       awk '
-        # 丢掉纯空行和明显无用的元数据
+        # Drop pure blank lines and clearly useless metadata
         /^[[:space:]]*$/ { next }
         /assembly\.ll/ { next }
         /Stack:/ { next }
@@ -344,7 +344,7 @@ EOF
         tolower($0) ~ /error:|warning:/ { print; next }
 
         {
-          # 保留 KLEE/CodeQL 里的关键行
+          # Keep critical lines from KLEE/CodeQL
           if ($0 ~ /Line.*KLEE|Fix:|Memory error|KLEE error|Error|WARNING|Code:/) print
           else if ($0 ~ /^###/) print
           else if ($0 ~ /\[cpp\//) print
@@ -514,10 +514,10 @@ run_iteration(){
                     {
                       echo "----- compiler log excerpt -----"
 
-                      # ✅ 1️⃣ 正常抓 error / warning
+                      # ✅ 1️⃣ Normally capture error / warning
                       grep -E "error:|warning:" "$clog" | head -n 20
 
-                      # ✅ 2️⃣ 如果一个 error: / warning: 都没有 → 强制兜底输出最后 30 行
+                      # ✅ 2️⃣ If no error:/warning: lines → force fallback to last 30 lines
                       if ! grep -qE "error:|warning:" "$clog"; then
                         echo "[FALLBACK] No explicit error:/warning: found. Dumping last 30 lines of compiler log:"
                         tail -n 30 "$clog"
@@ -543,7 +543,7 @@ run_iteration(){
       # 1️⃣ KLEE feedback
       grep -l . "$f"/feedback_klee_code_*.txt 2>/dev/null
 
-      # 2️⃣ ✅ 真实 compile 失败（权威源）
+      # 2️⃣ ✅ Real compile failures (authoritative source)
       if [ -s "$prev_comp_dir/compile_failures.txt" ]; then
         sed 's/ failed.*//' "$prev_comp_dir/compile_failures.txt"
       fi
@@ -630,13 +630,13 @@ run_iteration(){
           echo "   ❌ $bn (llvm-link failure, see ${bn}_compile.log)"
           continue
         }
-        # nm 自检（直接打印到终端）
+        # nm self-check (printed directly to the terminal)
         echo "[NM] $bl/${bn}.bc :: scanf symbols"
         "$LLVM_NM" "$bl/${bn}.bc" | egrep " __isoc99_scanf$| scanf$" || true
-        # 强制必须有 T __isoc99_scanf / T scanf
+        # Require presence of T __isoc99_scanf / T scanf
         "$LLVM_NM" "$bl/${bn}.bc" | grep -q " T __isoc99_scanf" || { echo "❌ nm check failed: missing T __isoc99_scanf"; exit 1; }
         "$LLVM_NM" "$bl/${bn}.bc" | egrep -q " T scanf$" || { echo "❌ nm check failed: missing T scanf"; exit 1; }
-        # 可选提示未解析
+        # Optional hint for unresolved symbols
         for u in strcpy strlen memcpy memset; do
           "$LLVM_NM" "$bl/${bn}.bc" | grep -q " U $u$" && echo "⚠️  unresolved external after link: $u"
         done
@@ -675,7 +675,7 @@ run_iteration(){
         continue
       fi
 
-      # 清理旧输出
+      # Clean old outputs
       if [ -e "$out" ]; then
         echo "     [KLEE] Removing old directory → $out"
         chmod -R u+w "$out" 2>/dev/null || true
@@ -719,7 +719,7 @@ run_iteration(){
       echo "--------------------------------------------------------"
       touch "$s/mark_after_klee_${bn}"
 
-      # 统计产物
+      # Count artifacts
       if [ -d "$out" ]; then
         errs=$(find "$out" -maxdepth 1 -type f -name "*.err" | wc -l | tr -d ' ')
         tests=$(find "$out" -maxdepth 1 -type f -name "*.ktest" | wc -l | tr -d ' ')
@@ -727,7 +727,7 @@ run_iteration(){
         errs=0; tests=0
       fi
 
-      # 检测 soft/hard crash
+      # Detect soft/hard crashes
       soft_errs=0
       grep -qiE 'HaltTimer|timeout|Execution halting|out of memory' "$logfile" && soft_errs=1
       crashed=0
@@ -735,7 +735,7 @@ run_iteration(){
         crashed=1
       fi
 
-      # 打印状态
+      # Print status
       if [ "$errs" -gt 0 ]; then
         echo "     [KLEE] Done → Tests=$tests  Errors=$errs"
       elif [ "$crashed" -eq 1 ]; then
@@ -748,7 +748,7 @@ run_iteration(){
         echo "     [KLEE] Done → Tests=$tests  (no actual errors)"
       fi
 
-      # 写入错误汇总
+      # Write error summary
       if [ "$errs" -gt 0 ]; then
         echo "$bn : $errs KLEE error(s)" >> "$k/klee_errors_summary.txt"
       fi
@@ -756,14 +756,14 @@ run_iteration(){
       [ "$soft_errs" -eq 1 ] && echo "⚠️  $bn : KLEE soft error (timeout/resource)" >> "$k/klee_errors_summary.txt"
       [ "$tests" -eq 0 ] && echo "⚠️  $bn : no test generated" >> "$k/klee_errors_summary.txt"
 
-      # 保存 log tail 到独立目录
+      # Save log tails to a dedicated directory
       if [ -f "$logfile" ]; then
         mkdir -p "$k/logs"
         tail -n 200 "$logfile" > "$k/logs/${bn}.tail.log" || true
       fi
     done
 
-    # ✅ 更稳健的 KLEE OK 判定逻辑
+    # ✅ More robust KLEE OK determination logic
     total_errs=$(find "$k" -maxdepth 2 -type f -name "*.err" | wc -l | tr -d ' ')
     total_tests=$(find "$k" -maxdepth 2 -type f -name "*.ktest" | wc -l | tr -d ' ')
     has_crash_or_soft=0
@@ -796,7 +796,7 @@ run_iteration(){
   echo "[DEBUG] summary: comp_fail=$comp_fail"
   
 
-  # ---- CodeQL issues：只统计 “>0 issues found” 的文件数 ----
+  # ---- CodeQL issues: only count files with “>0 issues found” ----
   codeql_reports=( "$f"/*_codeql.txt )
   if [ ${#codeql_reports[@]} -gt 0 ] && [ -e "${codeql_reports[0]}" ]; then
       codeql_errs=$(grep -lE "— [1-9][0-9]* issues found" "${codeql_reports[@]}" 2>/dev/null | wc -l)
@@ -806,13 +806,13 @@ run_iteration(){
 
 echo "[DEBUG] summary: codeql_errs=$codeql_errs"
 
-  # ---- KLEE errors：统计过滤后的 err（内容中不包含 "mock_"）----
-  # 先收集所有 .err
+  # ---- KLEE errors: count filtered err files (contents do not include "mock_") ----
+  # Collect all .err files first
   echo "[DEBUG] summary: before mapfile"
   mapfile -t all_errs < <(find "$k" -maxdepth 2 -type f -name "*.err" 2>/dev/null)
   echo "[DEBUG] summary: after mapfile"
   if [ ${#all_errs[@]} -gt 0 ]; then
-    # 过滤掉包含 "mock_" 的 .err
+    # Filter out .err files that contain "mock_"
     klee_errs=$(grep -L "mock_" "${all_errs[@]}" 2>/dev/null | wc -l | tr -d ' ')
   else
     klee_errs=0
@@ -832,7 +832,7 @@ echo "[DEBUG] summary: codeql_errs=$codeql_errs"
     echo "KLEE OK:              $([ -f "$s/klee_ok.flag" ] && echo yes || echo no)"
   } > "$r/summary_iter_${iter}.txt"
 
-  # 同时打印在终端
+  # Also print to the terminal
   cat "$r/summary_iter_${iter}.txt"
 
   build_feedback_per_file "$d"
